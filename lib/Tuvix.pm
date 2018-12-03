@@ -20,7 +20,9 @@ sub startup {
 
     # Model
     $self->helper(plerd => sub {Tuvix::Model::BlogInfo->new($self->config('plerd'))});
-    $self->helper(posts => sub {Tuvix::Model::Posts->new(db_conf => $self->config('db'))});
+    $self->helper(posts => sub {
+        Tuvix::Model::Posts->new(db => $self->config('db'), db_opts => $self->config('db_opts'))
+    });
 
     push @{$self->static->paths}, $self->plerd->publication_path;
 
