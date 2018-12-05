@@ -3,7 +3,7 @@ use Mojo::Unicode::UTF8;
 
 use Mojo::Base 'Mojolicious::Controller';
 use Mojolicious;
-use Mojo::Util qw/url_unescape/;
+use Mojo::Util qw/url_escape/;
 
 use Tuvix::Model::Posts;
 
@@ -24,12 +24,15 @@ sub get_posts {
     )
 }
 
-sub get_posts_by_title {
+sub get_posts_from_ymd_uri {
     my $self = shift;
-    my $title = url_unescape($self->param('title'));
+
+    # TODO Fix
+    my $uri = sprintf '/post/%s/%s', $self->param('ymd'), url_escape($self->param('uri'));
 
     $self->stash(
-        posts => $self->posts->get_posts_from_query({ 'title' => $title })
+        page  => 1,
+        posts => $self->posts->get_posts_from_query({ 'uri' => $uri })
     );
     $self->render(
         template => 'post'
@@ -41,7 +44,7 @@ sub load_next {
     my $self = shift;
     $self->on(message => sub {
         my ($self, $page) = @_;
-        for  my $post ($self->posts->get_posts_from_query(undef, $page)->all) {
+        for my $post ($self->posts->get_posts_from_query(undef, $page)->all) {
             $self->stash(post => $post);
             $self->send($self->render_to_string(template => '_post'));
         };
