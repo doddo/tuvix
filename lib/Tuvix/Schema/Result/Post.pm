@@ -1,5 +1,6 @@
 package Tuvix::Schema::Result::Post;
 use base qw/DBIx::Class::Core/;
+use Mojo::Unicode::UTF8;
 use Mojo::Util qw(url_escape);
 
 

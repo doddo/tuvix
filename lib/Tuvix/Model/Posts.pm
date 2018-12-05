@@ -20,7 +20,7 @@ has 'db_opts' => (
 
 sub schema {
     my $self = shift;
-    return Tuvix::Schema->connect(@{$self->db}, @{self->db_opts});
+    return Tuvix::Schema->connect(@{$self->db}, $self->db_opts);
 }
 
 sub get_posts_from_query {
