@@ -27,7 +27,7 @@ use warnings;
 my $schema = Tuvix::Schema->connect(
     @{app->config('db')}, app->config('db_opts'));
 
-$schema->deploy({ add_drop_table => 1 });
+$schema->deploy({ add_drop_table => 0 });
 
 my $config_ref = app->config('plerd');
 

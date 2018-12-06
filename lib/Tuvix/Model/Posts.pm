@@ -25,21 +25,9 @@ sub schema {
 
 sub get_posts_from_query {
     my $self = shift;
-    my $query = shift;
-    my $page = shift || 1;
-    my $limit = shift || 10;
 
-    my $schema = $self->schema;
-
-    my $rs = $schema->resultset('Post')->search(
-        $query,
-        {
-            order_by => { -desc => qw/date/ },
-            page     => $page,
-            limit    => $limit
-        }
-    );
-    return $rs
+    return $self->schema->resultset('Post')->get_posts_from_query(@_);
 }
+
 
 1;
