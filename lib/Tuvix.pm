@@ -11,18 +11,18 @@ use Tuvix::Schema;
 sub startup {
     my $self = shift;
 
-    # Configuration
     $self->plugin('Config');
     $self->secrets($self->config('secrets'));
 
-    # DB
-    my $schema = Tuvix::Schema->connect(@{$self->config('db')})->deploy({ add_drop_table => 0 });
-
-    # Model
     $self->helper(plerd => sub {Tuvix::Model::BlogInfo->new($self->config('plerd'))});
+    $self->helper(bloginfo => sub {
+        my $self = shift;
+        my $key = shift;
+        $self->plerd->$key()
+    });
     $self->helper(posts => sub {
         Tuvix::Model::Posts->new(db => $self->config('db'), db_opts => $self->config('db_opts'))
-    });
+    });;
 
     push @{$self->static->paths}, $self->plerd->publication_path;
 

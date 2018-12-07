@@ -7,7 +7,14 @@ use Moose;
 has 'base_uri' => (
     isa      => 'Str',
     is       => 'ro',
-    required => 0
+    required => 1
+);
+
+has 'websocket_uri' => (
+    isa        => 'Str',
+    is         => 'rw',
+    required   => 0,
+    lazy_build => 1
 );
 
 has 'title' => (
@@ -33,6 +40,15 @@ has 'publication_path' => (
     is       => 'ro',
     required => 1
 );
+
+sub _build_websocket_uri {
+    # TODO: Fix this
+    my $self = shift;
+    my $uri = $self->base_uri;
+    $uri =~ s|^http|ws|;
+    $uri =~ s|/*$|/more_posts|;
+    return $uri;
+}
 
 
 1;
