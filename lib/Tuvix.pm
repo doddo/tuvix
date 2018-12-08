@@ -30,7 +30,7 @@ sub startup {
     my $r = $self->routes;
     $r->get('/' => sub {shift->redirect_to('posts')});
     $r->get('/posts')->to('posts#get_posts');
-    $r->get('/post/#ymd/#uri')->to('posts#get_posts_from_ymd_uri');
+    $r->get('/posts/#postpath')->to('posts#get_posts_from_path');
     $r->post('/webmention')->to('webmentions#process_webmention');
 
     $r->websocket('/more_posts')->to('posts#load_next');

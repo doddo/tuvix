@@ -45,7 +45,7 @@ sub _build_websocket_uri {
     # TODO: Fix this
     my $self = shift;
     my $uri = $self->base_uri;
-    $uri =~ s|^http|ws|;
+    $uri =~ s|^https|ws|;
     $uri =~ s|/*$|/more_posts|;
     return $uri;
 }

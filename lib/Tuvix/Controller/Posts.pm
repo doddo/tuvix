@@ -27,15 +27,14 @@ sub get_posts {
     )
 }
 
-sub get_posts_from_ymd_uri {
+sub get_posts_from_path {
     my $self = shift;
-
-    # TODO Fix
-    my $uri = sprintf '/post/%s/%s', $self->param('ymd'), url_escape($self->param('uri'));
+    my $path = $self->param('postpath');
+    my $posts = $self->posts->get_posts_from_query({ 'path' => $path });
 
     $self->stash(
         page  => 1,
-        posts => $self->posts->get_posts_from_query({ 'uri' => $uri })
+        posts => $posts
     );
     $self->render(
         template => 'post'

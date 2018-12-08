@@ -21,4 +21,15 @@ sub get_posts_from_query {
     return $rs;
 }
 
+sub get_post_from_uri {
+    my $self = shift;
+    my $path = shift;
+
+    my $rs = return  $self->search(
+        { path => $path },
+    );
+    return $rs->next;
+}
+
+
 1;

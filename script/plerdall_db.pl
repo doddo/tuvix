@@ -6,7 +6,7 @@ BEGIN {unshift @INC, "$FindBin::Bin/../lib"}
 use Data::GUID;
 
 use Mojo::Unicode::UTF8;
-use Mojo::Util qw(url_escape);
+use Mojo::Util qw(url_escape slugify);
 use Mojolicious::Lite;
 
 use Plerd;
@@ -27,7 +27,7 @@ use warnings;
 my $schema = Tuvix::Schema->connect(
     @{app->config('db')}, app->config('db_opts'));
 
-$schema->deploy({ add_drop_table => 0 });
+$schema->deploy({ add_drop_table => 1 });
 
 my $config_ref = app->config('plerd');
 
@@ -54,21 +54,21 @@ my $atomic_update = sub {
         $post->description($plerd_post->description());
         $post->author_name($plerd_post->plerd->author_name());
 
-        unless ($post->uri()) {
+        unless ($post->path()) {
             # Find a name which is not allocated already ...
-            my $uri_base = join '/', ('/post', $post->date->ymd, url_escape($plerd_post->title));
-            my $uri = $uri_base;
+            my $path_base = join '-', ($post->date->ymd, slugify($plerd_post->title, 1));
+            my $path = $path_base;
             my $i = 0;
-            while ($schema->resultset('Post')->find({ uri => $uri })) {
-                $uri = sprintf '%s-%i', $uri_base, $i++
+            while ($schema->resultset('Post')->find({ path => $path })) {
+                $path = sprintf '%s-%i', $path_base, $i++
             }
-            $post->uri($uri);
+            $post->path($path);
 
         }
         # Save this here so we cam send properly formatted webmentions
-        $plerd_post->published_filename($post->uri());
+        $plerd_post->published_filename($post->path());
 
-        printf "%-50.48s %s\n", $post->title(), $post->uri();
+        printf "%-50.48s %s\n", $post->title(), $post->path();
 
         $post->update_or_insert;
     }
