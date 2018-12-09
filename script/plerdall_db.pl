@@ -48,9 +48,12 @@ my $atomic_update = sub {
             { guid => $plerd_post->guid() },
         );
 
+        $plerd_post->description($plerd_post->stripped_body);
+
         $post->title($plerd_post->title());
         $post->body($plerd_post->body());
         $post->date($plerd_post->date());
+
         $post->description($plerd_post->description());
         $post->author_name($plerd_post->plerd->author_name());
 

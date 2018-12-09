@@ -2,12 +2,24 @@ package Tuvix::Model::BlogInfo;
 use strict;
 use warnings FATAL => 'all';
 
+use Mojo::URL;
+
 use Moose;
+use Moose::Util::TypeConstraints;
+
+subtype 'URL'
+  => as 'Object'
+  => where { $_->isa('Mojo::URL') };
+
+coerce 'URL'
+  => from 'Str'
+  => via { Mojo::URL->new($_) };
 
 has 'base_uri' => (
-    isa      => 'Str',
+    isa      => 'URL',
     is       => 'ro',
-    required => 1
+    required => 1,
+    coerce   => 1
 );
 
 has 'websocket_uri' => (

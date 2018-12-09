@@ -1,0 +1,29 @@
+% my $url = plerd->base_uri->clone;
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+      <title><%== plerd->title %></title>
+      <link><%= plerd->base_uri %></link>
+      <description></description>
+      % $url->path($path);
+      <atom:link href="<%= $url->to_string %>?feed=rss" rel="self" type="application/rss+xml" />
+
+      <lastBuildDate><%= ($posts->all)[0]->date->strftime("%a, %d %b %Y %H:%M:%S %z") %></lastBuildDate>
+
+% while (my $post = $posts->next) {
+        <item>
+          <title><%= $post->title %></title>
+          % $url->path($post->uri);
+          <guid isPermaLink="true"><%= $url->to_string %></guid>
+
+          <link><%= $url->to_string %></link>
+          <pubDate><%= $post->date->strftime("%a, %d %b %Y %H:%M:%S %z") %></pubDate>
+          <description>
+            <![CDATA[
+                <%== $post->description || $post->body %>
+            ]]>
+         </description>
+        </item>
+% }
+    </channel>
+</rss>

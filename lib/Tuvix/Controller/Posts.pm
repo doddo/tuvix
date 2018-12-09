@@ -14,7 +14,16 @@ use warnings FATAL => 'all';
 sub get_posts {
     my $self = shift;
     my $page = $self->param('page') || 1;
+    my $template = 'post';
     my $posts_per_page = $self->param('posts_per_page') || 10;
+    my $format = 'html';
+
+    if ($self->param('feed') && $self->param('feed') eq 'rss') {
+        $posts_per_page = 100;
+        $page = 1;
+        $template = 'rss';
+        $format = 'xml'
+    }
 
     my $posts = $self->posts->get_posts_from_query(undef, $page, $posts_per_page);
 
@@ -22,10 +31,12 @@ sub get_posts {
 
     $self->stash(
         page  => $page,
-        posts => $posts
+        posts => $posts,
+        path  => $self->req->url->path
     );
     $self->render(
-        template => 'post'
+        template => $template,
+        format => $format
     )
 }
 
@@ -43,7 +54,6 @@ sub get_posts_from_path {
     $self->render(
         template => 'post'
     )
-
 }
 
 

@@ -33,6 +33,4 @@ sub get_recent_posts {
     return shift->schema->resultset('Post')->get_recent_posts;
 }
 
-
-
 1;
