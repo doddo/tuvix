@@ -16,7 +16,9 @@ sub get_posts {
     my $page = $self->param('page') || 1;
     my $posts_per_page = $self->param('posts_per_page') || 10;
 
-    my $posts =  $self->posts->get_posts_from_query(undef, $page, $posts_per_page);
+    my $posts = $self->posts->get_posts_from_query(undef, $page, $posts_per_page);
+
+    return $self->reply->not_found unless ($posts->count);
 
     $self->stash(
         page  => $page,
@@ -32,6 +34,8 @@ sub get_posts_from_path {
     my $path = $self->param('postpath');
     my $posts = $self->posts->get_posts_from_query({ 'path' => $path });
 
+    return $self->reply->not_found unless ($posts->count);
+
     $self->stash(
         page  => 1,
         posts => $posts
@@ -39,6 +43,7 @@ sub get_posts_from_path {
     $self->render(
         template => 'post'
     )
+
 }
 
 

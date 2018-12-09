@@ -29,5 +29,10 @@ sub get_posts_from_query {
     return $self->schema->resultset('Post')->get_posts_from_query(@_);
 }
 
+sub get_recent_posts {
+    return shift->schema->resultset('Post')->get_recent_posts;
+}
+
+
 
 1;

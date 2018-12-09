@@ -69,7 +69,7 @@
             <section>
                 <h1>Recent Posts</h1>
                 <ul>
-                % foreach my $post  ($posts->all) {
+                % foreach my $post  (recent_posts->all) {
                     <li><a href="<%= $post->uri %>"><%= $post->title %></a></li>
                 % }
                 </ul>

@@ -31,5 +31,8 @@ sub get_post_from_uri {
     return $rs->next;
 }
 
+sub get_recent_posts {
+    return shift->get_posts_from_query(undef, 1, 10);
+}
 
 1;
