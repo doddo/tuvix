@@ -6,7 +6,7 @@ BEGIN {unshift @INC, "$FindBin::Bin/../lib"}
 use Data::GUID;
 
 use Mojo::Unicode::UTF8;
-use Mojo::Util qw(url_escape slugify);
+use Mojo::Util qw(slugify);
 use Mojolicious::Lite;
 
 use Plerd;
