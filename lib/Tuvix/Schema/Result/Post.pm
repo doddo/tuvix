@@ -28,11 +28,12 @@ has 'uri' => (
 
 __PACKAGE__->load_components(qw/InflateColumn::DateTime/);
 __PACKAGE__->table('posts');
-__PACKAGE__->add_columns(qw/guid title body author_name path/);
+__PACKAGE__->add_columns(qw/guid title body author_name path source_file/);
 __PACKAGE__->add_columns(date => { data_type => 'DateTime' });
 __PACKAGE__->add_columns(description => { is_nullable => 1 });
 __PACKAGE__->set_primary_key('guid');
 __PACKAGE__->add_unique_constraint([ 'path' ]);
+__PACKAGE__->add_unique_constraint([ 'source_file' ]);
 
 __PACKAGE__->has_many(comments => 'Tuvix::Schema::Result::Comment', 'guid');
 
