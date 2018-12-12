@@ -15,7 +15,6 @@ use Plerd::Util;
 use Try::Tiny;
 use Tuvix;
 use Tuvix::PlerdHelper;
-use Tuvix::Schema;
 
 use feature qw/say/;
 
