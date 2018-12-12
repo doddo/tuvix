@@ -9,3 +9,4 @@ requires 'Mojo::Unicode::UTF8';
 requires 'Moose';
 requires 'Plerd';
 requires 'SQL::Translator';
+requires 'File::ChangeNotify';
