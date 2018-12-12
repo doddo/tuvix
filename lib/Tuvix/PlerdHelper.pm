@@ -83,12 +83,12 @@ sub create_or_update_post {
 
 sub delete_post_from_filename {
     my $self = shift;
-    my $source_filename = shift;
+    my $source_file = shift;
 
     $self
         ->schema
         ->resultset('Post')
-        ->search({ source_filename => $source_filename })
+        ->search({ source_file => $source_file })
         ->delete;
 }
 
