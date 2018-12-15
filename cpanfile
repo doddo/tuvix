@@ -1,6 +1,6 @@
 requires 'perl', '5.008001';
 
-requires 'DateTime::Format::SQLite.pm';
+requires 'DateTime::Format::SQLite';
 requires 'DBIx::Class::Core';
 requires 'DBIx::Class::Schema';
 requires 'Mojolicios';
