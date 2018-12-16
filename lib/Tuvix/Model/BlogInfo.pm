@@ -8,12 +8,12 @@ use Moose;
 use Moose::Util::TypeConstraints;
 
 subtype 'URL'
-  => as 'Object'
-  => where { $_->isa('Mojo::URL') };
+    => as 'Object'
+    => where {$_->isa('Mojo::URL')};
 
 coerce 'URL'
-  => from 'Str'
-  => via { Mojo::URL->new($_) };
+    => from 'Str'
+    => via {Mojo::URL->new($_)};
 
 has 'base_uri' => (
     isa      => 'URL',
@@ -24,6 +24,13 @@ has 'base_uri' => (
 
 has 'websocket_uri' => (
     isa        => 'Str',
+    is         => 'rw',
+    required   => 0,
+    lazy_build => 1
+);
+
+has 'webmention_uri' => (
+    isa        => 'URL',
     is         => 'rw',
     required   => 0,
     lazy_build => 1
@@ -60,6 +67,11 @@ sub _build_websocket_uri {
     $uri =~ s|^https|ws|;
     $uri =~ s|/*$|/more_posts|;
     return $uri;
+}
+
+sub _build_webmention_uri {
+    my $self = shift;
+    return Mojo::URL->new("/webmention")->base(Mojo::URL->new($self->base_uri))->to_abs;
 }
 
 
