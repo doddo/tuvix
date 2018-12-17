@@ -1,0 +1,31 @@
+    <h4>Replies and mentions</h4>
+    % my $count = 0;
+    % foreach my $comment ( @{ $post->comments } ) {
+        % unless ($comment->type eq 'like' || $comment->type == 'repost') {
+        % $count++;
+        <div class="media">
+            <div class="media-left">
+                % if ( $comment->type eq 'mention' ) {
+                <a rel="nofollow" href="<%= $comment->original_source %>">
+                <img class="media-object" src="http://fogknife.com/images/comment.png" alt="A generic word balloon" style="max-width:32px; max-height:32px;">
+                </a>
+                % } else {
+                <a rel="nofollow" href="<%= $comment->author->original_source %>">
+                <img class="media-object" src="<%=  $comment->author->photo %>" alt="<%=  $comment->author->name %> avatar" style="max-width:32px; max-height:32px;">
+                </a>
+                % }
+            </div>
+            <div class="media-body">
+                % if ($comment->type eq 'mention') {
+                <h4 class="media-heading">Mentioned on <a href="[% webmention.original_source %]">[% webmention.original_source.host %]</a>...</h4>
+                % } else {
+                <h4 class="media-heading"><a href="[% webmention.author.url %]">[% webmention.author.name %]</a></h4>
+                % }
+                    <%= $comment->content %> <a rel="nofollow" href="<%= $comment->original_source %>"><span class="glyphicon glyphicon-share" style="text-decoration:none; color:black;"></a>
+            </div>
+        </div>
+        % }
+    % }
+    % unless ($count) {
+        (None yet!)
+    %}

@@ -1,0 +1,2 @@
+<h4>Likes</h4>
+    %= include _facepile type="like"

@@ -1,0 +1,79 @@
+% layout 'wrapper';
+
+% if ($posts->count > 1) {
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script type="text/javascript">
+   $(document).ready(function() {
+        var win = $(window);
+        var i = 1;
+        win.scroll(function() {
+            // End of the document reached?
+            if ($(document).height() - win.height() == win.scrollTop()) {
+                 var ws = new WebSocket('<%= bloginfo( 'websocket_uri' ) %>');
+
+                // $('#loading').show();
+                  ws.onmessage = function (event) { $( "#posts" ).append(event.data) };
+                  ws.onopen    = function (event) { ws.send(++i) };
+            }
+        });
+    });
+</script>
+%}
+
+<div id="posts">
+% for my $post ($posts->page($page)->all) {
+% $self->stash(post => $post);
+%= include '_post'
+%}
+</div>
+
+% if ($posts->count == 1) {
+%   my $post = ($posts->all)[0];
+<div>
+    <hr />
+%  if ($post->newer_post) {
+<p>Next post: <a href="<%= $post->newer_post->uri %>"><%= $post->newer_post->title %></a></p>
+%}
+%  if ($post->older_post) {
+<p>Previous post: <a href="<%= $post->older_post->uri %>"><%= $post->older_post->title %></a></p>
+%}
+</div>
+
+% if ($post->comments->count > 0) {
+<hr />
+<h3>Responses from around the web...</h3>
+    <div class="row">
+        <div class="col-xs-6">
+%= include '_likes'
+            </div>
+            <div class="col-xs-6">
+%= include '_reposts'
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+%= include '_responses'
+            </div>
+        </div>
+%}
+%}
+% if ($posts->count > 1) {
+<hr>
+    <div class="row">
+%   if ($page > 1) {
+<div class="col-xs-12">
+    <a class="col-xs-12" href="/posts/?page=<%= $page - 1 %>"/> ⟵ previous page</a>
+            </div>
+%}
+%   if ($posts->pager->next_page) {
+<div class="col-xs-12">
+    <a class="col-xs-12" href="/posts/?page=<%= $posts->pager->next_page %>"/> next page ⟶ </a>
+            </div>
+%}
+
+
+</div>
+%}
+<style>
+/* img.media-object { max-width: 64px } */
+</style>
