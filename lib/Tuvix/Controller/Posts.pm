@@ -114,7 +114,6 @@ sub get_archive {
     )
 }
 
-
 sub load_next {
     my $self = shift;
     $self->on(message => sub {
