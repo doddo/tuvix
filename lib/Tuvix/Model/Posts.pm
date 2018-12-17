@@ -6,6 +6,8 @@ use DBIx::Class::ResultSet;
 
 use Moose;
 
+# TODO Deprecate this package.
+
 has 'db' => (
     isa      => 'ArrayRef',
     is       => 'ro',
@@ -21,6 +23,11 @@ has 'db_opts' => (
 sub schema {
     my $self = shift;
     return Tuvix::Schema->connect(@{$self->db}, $self->db_opts);
+}
+
+sub resultset {
+    my $self = shift;
+    return $self->schema->resultset('Post');
 }
 
 sub get_posts_from_query {

@@ -7,6 +7,8 @@ use Mojo::Util qw/url_escape/;
 
 use Tuvix::Model::Posts;
 
+use DateTime;
+
 use strict;
 use warnings FATAL => 'all';
 
@@ -31,12 +33,13 @@ sub get_posts {
 
     $self->stash(
         page  => $page,
+        title => $self->plerd->title,
         posts => $posts,
         path  => $self->req->url->path
     );
     $self->render(
         template => $template,
-        format => $format
+        format   => $format
     )
 }
 
@@ -49,10 +52,65 @@ sub get_posts_from_path {
 
     $self->stash(
         page  => 1,
+        title => sprintf("%s - %s ", ($posts->all)[0]->title, $self->plerd->title),
         posts => $posts
     );
     $self->render(
         template => 'post'
+    )
+}
+
+sub get_archive {
+    my $self = shift;
+    my $year;
+    my $month;
+    my $dt = DateTime->now;
+    my $time_zone = $self->config('time_zone') // DateTime::TimeZone->new(name => 'local');
+
+    unless ($self->param('year') && $self->param('month')) {
+        $year = $dt->year;
+        $month = $dt->month;
+    }
+    else {
+        $year = $self->param('year');
+        $month = $self->param('month');
+
+        unless ($year =~ m/^\d+$/ && ($year >= 1347 && $year <= $dt->year)) {
+            $self->render(status => 401, text => "Invalid Year");
+            return;
+        }
+        unless ($month =~ m/^\d+$/ && ($month >= 1 && $month <= $dt->month)) {
+            $self->render(status => 401, text => "Invalid Month");
+            return;
+        }
+    }
+
+
+    my $wanted_date_start = DateTime->new(
+        year      => $year,
+        month     => $month,
+        day       => 1,
+        hour      => 0,
+        minute    => 0,
+        second    => 0,
+        time_zone => $time_zone,
+    );
+
+    my $posts = $self
+        ->posts
+        ->resultset
+        ->get_posts_from_month($wanted_date_start);
+
+    #return $self->reply->not_found unless ($posts->count);
+
+
+    $self->stash(
+        wanted => $wanted_date_start,
+        title => 'Archive',
+        posts => $posts,
+    );
+    $self->render(
+        template => 'archive',
     )
 }
 

@@ -23,7 +23,7 @@ sub startup {
     $self->helper(posts => sub {
         Tuvix::Model::Posts->new(db => $self->config('db'), db_opts => $self->config('db_opts'))
     });;
-    $self->helper(recent_posts => sub { shift->posts->get_recent_posts() });;
+    $self->helper(recent_posts => sub {shift->posts->get_recent_posts()});;
 
 
     push @{$self->static->paths}, $self->plerd->publication_path;
@@ -32,6 +32,8 @@ sub startup {
     my $r = $self->routes;
     $r->get('/' => sub {shift->redirect_to('posts')});
     $r->get('/posts')->to('posts#get_posts');
+    $r->get('/posts/archive')->to('posts#get_archive');
+
     $r->get('/posts/#postpath')->to('posts#get_posts_from_path');
     $r->post('/webmention')->to('webmentions#process_webmention');
 
