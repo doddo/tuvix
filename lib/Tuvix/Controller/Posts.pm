@@ -64,7 +64,9 @@ sub get_archive {
     my $self = shift;
     my $year;
     my $month;
-    my $dt = DateTime->now;
+    my $rs = $self->posts->resultset;
+    my $latest_post = $rs->get_latest;
+    my $dt = $latest_post ? $latest_post->date : DateTime->now;
     my $time_zone = $self->config('time_zone') // DateTime::TimeZone->new(name => 'local');
 
     unless ($self->param('year') && $self->param('month')) {
@@ -85,7 +87,6 @@ sub get_archive {
         }
     }
 
-
     my $wanted_date_start = DateTime->new(
         year      => $year,
         month     => $month,
@@ -96,13 +97,7 @@ sub get_archive {
         time_zone => $time_zone,
     );
 
-    my $posts = $self
-        ->posts
-        ->resultset
-        ->get_posts_from_month($wanted_date_start);
-
-    #return $self->reply->not_found unless ($posts->count);
-
+    my $posts = $rs->get_posts_from_month($wanted_date_start);
 
     $self->stash(
         wanted => $wanted_date_start,

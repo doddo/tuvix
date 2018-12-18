@@ -58,7 +58,14 @@ sub get_posts_from_month {
 }
 
 sub get_recent_posts {
-    return shift->get_posts_from_query(undef, 1, 10);
+    return shift
+        ->get_posts_from_query(undef, 1, 10);
+}
+
+sub get_latest {
+    return shift
+        ->get_posts_from_query(undef, 1, 1)
+        ->next;
 }
 
 1;
