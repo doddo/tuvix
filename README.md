@@ -1,7 +1,17 @@
 # Tuvix
 
 Tuvix is a top modern weblog software based on [Plerd](https://github.com/jmacdotorg/plerd) except instead of rendering a static site like Plerd does, this one uses [Mojolicious](https://mojolicious.org/) (An amazing real-time web framework). This means that infinite scrolling and other great stuff works out of the box (but could potentially be turned of in favour of more traditional pagination in a future release version).
-Furthermore, while Plerd is ultralight Tuvox is more focused on being (somewhat) feature rich, (atleast feature-richer) for example it supports the [Instaplerd](https://github.com/doddo/instaplerd), so that you swiftly can spin up a photoblog (or a hybrid since it'll accept markdown and jpegs as source files)
+Furthermore, while Plerd is ultralight Tuvox is more focused on being (somewhat) feature-rich, (atleast feature-richer) for example it supports the [Instaplerd](https://github.com/doddo/instaplerd), so that you swiftly can spin up a photoblog (or a hybrid since it'll accept markdown and jpegs as source files)
+
+## How to install
+
+```bash
+curl -fsSL https://cpanmin.us | perl - --installdeps .
+perl Makefile.PL
+make
+make test
+make install
+```
 
 ## How it works
 
