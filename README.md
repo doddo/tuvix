@@ -1,3 +1,5 @@
+![build status](https://travis-ci.org/doddo/tuvix.svg?branch=master)
+
 # Tuvix
 
 Tuvix is a top modern weblog software based on [Plerd](https://github.com/jmacdotorg/plerd) except instead of rendering a static site like Plerd does, this one uses [Mojolicious](https://mojolicious.org/) (An amazing real-time web framework). This means that infinite scrolling and other great stuff works out of the box (but could potentially be turned of in favour of more traditional pagination in a future release version).
@@ -27,10 +29,12 @@ Copyright (C) Petter H
 
 This library is released under the MIT license. 
 
-Most of the templates have been ported from [Plerds templates](https://github.com/jmacdotorg/plerd/tree/master/t/templates) and have been re-written from .tt => .ep format but otherwise have been left intact so as to maintain the same look and feel as Pled does. As such they forked from (C) Jason McIntosh
-
-
 
 # AUTHOR
 
 Petter H <dr.doddo@gmail.com>
+
+# CREDITS
+
+* [Jason McIntosh](http://jmac.org/):  Most of the templates have been ported from [Plerds templates](https://github.com/jmacdotorg/plerd/tree/master/t/templates) which is originally written by Jason McIntosh. Thet have been re-written from .tt => .ep format but have otherwise been left intact so as to maintain the same look and feel as Pled does. 
+
