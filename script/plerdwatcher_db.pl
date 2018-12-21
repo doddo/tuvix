@@ -53,7 +53,8 @@ my $plerd = Plerd->new($config_ref);
 my $ph = Tuvix::PlerdHelper->new(
     db      => \@{app->config('db')},
     db_opts => app->config('db_opts'),
-    plerd   => $plerd
+    plerd   => $plerd,
+    log     => $log
 );
 
 try {

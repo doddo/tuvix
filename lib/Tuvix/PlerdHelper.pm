@@ -6,6 +6,7 @@ use feature qw\say\;
 use Data::GUID;
 
 use Moose;
+use Mojo::Log;
 use Mojo::Unicode::UTF8;
 use Mojo::Util qw(slugify);
 
@@ -22,6 +23,12 @@ has 'db_opts' => (
     is      => 'ro',
     isa     => 'HashRef',
     default => sub {{}}
+);
+
+has 'log' => (
+    is      => 'ro',
+    isa     => 'Mojo::Log',
+    default => sub {Mojo::Log->new}
 );
 
 has 'plerd' => (
@@ -49,6 +56,8 @@ sub create_or_update_post {
     my $self = shift;
     my $plerd_post = shift;
     my $schema = shift || $self->schema();
+
+    $self->log->info(sprintf "Creating or updating post [%s]: %s", $plerd_post->guid, $plerd_post->title);
 
     my $post = $schema->resultset('Post')->find_or_new(
         { guid => $plerd_post->guid() },
@@ -96,7 +105,6 @@ sub publish_all {
     my $self = shift;
     my $schema = $self->schema;
     my $plerd = $self->plerd;
-    my @published_posts;
 
     my $atomic_publish = sub {
         my @ids = map {$_->guid()->as_string => $_} @{$plerd->posts};
@@ -107,7 +115,7 @@ sub publish_all {
         )->delete;
 
         for my $plerd_post (@{$plerd->posts}) {
-            push @published_posts, $self->create_or_update_post($plerd_post, $schema)
+            $self->create_or_update_post($plerd_post, $schema)
         }
 
         return $schema->resultset('Post');
