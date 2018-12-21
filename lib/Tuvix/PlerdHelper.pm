@@ -130,8 +130,11 @@ sub publish_all {
         # Transaction failed
         my $error = shift;
 
-        die "Could not preform transaction ADN rollback failed.\n"
-            if ($error and $error =~ /Rollback failed/);
+        if ($error) {
+            die "Could not preform transaction ADN rollback failed.\n"
+                if ($error and $error =~ /Rollback failed/);
+            die "Unexpected error encoutered: $error\n";
+        }
 
         die "Unable to preform transaction\n";
     };
