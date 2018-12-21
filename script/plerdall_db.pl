@@ -25,9 +25,11 @@ use Pod::Usage qw/pod2usage/;
 my $drop_tables = 0;
 my $help = 0;
 my $send_webmentions = 0;
+my $deploy_schema = 0;
 my $config_file = "$FindBin::Bin/../tuvix.conf";
 
-GetOptions("drop_tables" => \$drop_tables,
+GetOptions("drop-tables" => \$drop_tables,
+    "deploy-schema"      => \$deploy_schema,
     "help"               => \$help,
     "send-webmentions"   => \$send_webmentions,
     "config-file=s"      => \$config_file)
@@ -51,7 +53,7 @@ my $ph = Tuvix::PlerdHelper->new(
     plerd   => $plerd
 );
 
-$ph->deploy_schema($drop_tables);
+$ph->deploy_schema($drop_tables) if $deploy_schema;
 
 my $posts = $ph->publish_all;
 
@@ -79,6 +81,7 @@ plerdall_db.pl  [option ...]
 
  Options:
    --config-file       Path to the tuvix.conf file
+   --deploy-schema     Wether to deploy the db schema or not.
    --drop-tables       Drop tables when deploying the schema
    --send-webmentions  Send webmentions from posts if applicable
    --help              brief help message
@@ -95,9 +98,13 @@ Print a brief help message and exits.
 
 Path to the tuvix.conf config file.
 
+=item B<--deploy-schema>
+
+Wether to deploy the db schema or not. This is required to when running for the first time
+
 =item B<--drop-tables>
 
-Wether to drop the db tables before deploying the schema or not.
+Wether to drop the db tables before deploying the schema or not. Only usable when deploying-schema
 
 =item B<--send-webmentions>
 
