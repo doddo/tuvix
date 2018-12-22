@@ -23,7 +23,7 @@ has 'base_uri' => (
 );
 
 has 'websocket_uri' => (
-    isa        => 'Str',
+    isa        => 'URL',
     is         => 'rw',
     required   => 0,
     lazy_build => 1
@@ -61,12 +61,13 @@ has 'publication_path' => (
 );
 
 sub _build_websocket_uri {
-    # TODO: Fix this
     my $self = shift;
-    my $uri = $self->base_uri;
-    $uri =~ s|^https|ws|;
-    $uri =~ s|/*$|/more_posts|;
-    return $uri;
+    return Mojo::URL
+        ->new("/more_posts")
+        ->base(Mojo::URL
+        ->new($self->base_uri)->scheme('ws'))
+        ->to_abs;
+
 }
 
 sub _build_webmention_uri {
