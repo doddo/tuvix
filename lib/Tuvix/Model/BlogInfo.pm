@@ -64,15 +64,16 @@ sub _build_websocket_uri {
     my $self = shift;
     return Mojo::URL
         ->new("/more_posts")
-        ->base(Mojo::URL
-        ->new($self->base_uri)->scheme('ws'))
+        ->base(Mojo::URL->new($self->base_uri)->scheme('ws'))
         ->to_abs;
-
 }
 
 sub _build_webmention_uri {
     my $self = shift;
-    return Mojo::URL->new("/webmention")->base(Mojo::URL->new($self->base_uri))->to_abs;
+    return Mojo::URL
+        ->new("/webmention")
+        ->base(Mojo::URL->new($self->base_uri))
+        ->to_abs;
 }
 
 
