@@ -1,3 +1,6 @@
+# The test db
+t/assets/tuvix.db
+
 !Build/
 .last_cover_stats
 /META.yml

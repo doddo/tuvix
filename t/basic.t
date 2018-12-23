@@ -6,12 +6,21 @@ use Mojolicious::Lite;
 use Mojo::Unicode::UTF8;
 
 use FindBin;
-BEGIN { unshift @INC, "$FindBin::Bin/../lib" }
+
+BEGIN { unshift @INC, ("$FindBin::Bin",  "$FindBin::Bin/../lib") }
+
+use TestData qw\create_testdb\;
+
 use Mojolicious::Commands;
 
 plugin 'Config' => { file => 'assets/tuvix.conf' };
 
 chdir "$FindBin::Bin";
+
+
+my $testdbath = 'assets/tuvix.db';
+
+create_testdb unless (-f $testdbath);
 
 my $t = Test::Mojo->new('Tuvix', app->config);
 
