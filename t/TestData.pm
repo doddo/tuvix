@@ -40,8 +40,6 @@ sub create_testdb {
 
         isa_ok $post, 'Tuvix::Schema::Result::Post';
     }
-
-    done_testing();
 }
 
 1;
