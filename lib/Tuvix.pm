@@ -22,7 +22,7 @@ sub startup {
     });
     $self->helper(posts => sub {
         Tuvix::Model::Posts->new(db => $self->config('db'), db_opts => $self->config('db_opts'))
-    });;
+    });
     $self->helper(recent_posts => sub {shift->posts->get_recent_posts()});;
 
 

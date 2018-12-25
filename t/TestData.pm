@@ -40,6 +40,8 @@ sub create_testdb {
 
         isa_ok $post, 'Tuvix::Schema::Result::Post';
     }
+
+    return $ph->schema()->clone();
 }
 
 1;

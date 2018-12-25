@@ -37,11 +37,11 @@ has 'plerd' => (
     default => sub {{}}
 );
 
-sub schema {
-    my $self = shift;
-    return Tuvix::Schema
-        ->connect(@{$self->db}, $self->db_opts);
-}
+has 'schema' => (
+    is         => 'rw',
+    isa        => 'Tuvix::Schema',
+    lazy_build => 1
+);
 
 sub deploy_schema {
     my $self = shift;
@@ -140,6 +140,12 @@ sub publish_all {
     };
     return $rs
 
+}
+
+sub _build_schema {
+    my $self = shift;
+    return Tuvix::Schema
+        ->connect(@{$self->db}, $self->db_opts);
 }
 
 1;
