@@ -76,7 +76,7 @@ sub create_or_update_post {
 
     $plerd_post->description($plerd_post->stripped_body);
 
-    $post->title($plerd_post->title());
+    $post->author_name($plerd_post->plerd->author_name());
     $post->body($plerd_post->body());
     $post->date($plerd_post->date());
 
@@ -84,10 +84,29 @@ sub create_or_update_post {
         $post->type($plerd_post->type());
     }
 
-    #$post->source_file($plerd_post->source_file->basename);
-
     $post->description($plerd_post->description());
-    $post->author_name($plerd_post->plerd->author_name());
+    $post->source_file($plerd_post->source_file->basename);
+
+    # Remove tags which are not present in the post, but may be present
+    # since an earlier version of the post.
+    $schema->resultset('Tags')->search(
+        {
+            guid => $plerd_post->guid(),
+            tag  => { -not_in => $plerd_post->tags() }
+        })->delete;
+
+    if ($plerd_post->tags()) {
+        foreach (@{$plerd_post->tags()}) {
+            $schema->resultset('Tags')->new(
+                {
+                    guid => $plerd_post->guid(),
+                    tag  => $_
+                }
+            )->insert;
+        }
+    }
+
+    $post->title($plerd_post->title());
 
     unless ($post->path()) {
         # Find a name which is not allocated already ...
