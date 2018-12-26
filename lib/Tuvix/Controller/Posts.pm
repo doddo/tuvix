@@ -14,75 +14,77 @@ use warnings FATAL => 'all';
 
 
 sub get_posts {
-    my $self = shift;
-    my $page = $self->param('page') || 1;
+    my $c = shift;
+    my $page = $c->param('page') || 1;
     my $template = 'post';
-    my $posts_per_page = $self->param('posts_per_page') || 10;
+    my $posts_per_page = $c->param('posts_per_page') || 10;
     my $format = 'html';
 
-    if ($self->param('feed') && $self->param('feed') eq 'rss') {
+    $c->res->headers->append(Link => sprintf '"<%s>; rel=\"webmention\"', $c->plerd->webmention_uri());
+
+    if ($c->param('feed') && $c->param('feed') eq 'rss') {
         $posts_per_page = 100;
         $page = 1;
         $template = 'rss';
         $format = 'xml'
     }
 
-    my $posts = $self->posts->get_posts_from_query(undef, $page, $posts_per_page);
+    my $posts = $c->posts->get_posts_from_query(undef, $page, $posts_per_page);
 
-    return $self->reply->not_found unless ($posts->count);
+    return $c->reply->not_found unless ($posts->count);
 
-    $self->stash(
+    $c->stash(
         page  => $page,
-        title => $self->plerd->title,
+        title => $c->plerd->title,
         posts => $posts,
-        path  => $self->req->url->path
+        path  => $c->req->url->path
     );
-    $self->render(
+    $c->render(
         template => $template,
         format   => $format
     )
 }
 
 sub get_posts_from_path {
-    my $self = shift;
-    my $path = $self->param('postpath');
-    my $posts = $self->posts->get_posts_from_query({ 'path' => $path });
+    my $c = shift;
+    my $path = $c->param('postpath');
+    my $posts = $c->posts->get_posts_from_query({ 'path' => $path });
 
-    return $self->reply->not_found unless ($posts->count);
+    return $c->reply->not_found unless ($posts->count);
 
-    $self->stash(
+    $c->stash(
         page  => 1,
-        title => sprintf("%s - %s ", ($posts->all)[0]->title, $self->plerd->title),
+        title => sprintf("%s - %s ", ($posts->all)[0]->title, $c->plerd->title),
         posts => $posts
     );
-    $self->render(
+    $c->render(
         template => 'post'
     )
 }
 
 sub get_archive {
-    my $self = shift;
+    my $c = shift;
     my $year;
     my $month;
-    my $rs = $self->posts->resultset;
+    my $rs = $c->posts->resultset;
     my $latest_post = $rs->get_latest;
     my $dt = $latest_post ? $latest_post->date : DateTime->now;
-    my $time_zone = $self->config('time_zone') // DateTime::TimeZone->new(name => 'local');
+    my $time_zone = $c->config('time_zone') // DateTime::TimeZone->new(name => 'local');
 
-    unless ($self->param('year') && $self->param('month')) {
+    unless ($c->param('year') && $c->param('month')) {
         $year = $dt->year;
         $month = $dt->month;
     }
     else {
-        $year = $self->param('year');
-        $month = $self->param('month');
+        $year = $c->param('year');
+        $month = $c->param('month');
 
         unless ($year =~ m/^\d+$/ && ($year >= 1347 && $year <= $dt->year)) {
-            $self->render(status => 401, text => "Invalid Year");
+            $c->render(status => 401, text => "Invalid Year");
             return;
         }
         unless ($month =~ m/^\d+$/ && ($month >= 1 && $month <= $dt->month)) {
-            $self->render(status => 401, text => "Invalid Month");
+            $c->render(status => 401, text => "Invalid Month");
             return;
         }
     }
@@ -99,19 +101,19 @@ sub get_archive {
 
     my $posts = $rs->get_posts_from_month($wanted_date_start);
 
-    $self->stash(
+    $c->stash(
         wanted => $wanted_date_start,
         title => 'Archive',
         posts => $posts,
     );
-    $self->render(
+    $c->render(
         template => 'archive',
     )
 }
 
 sub load_next {
-    my $self = shift;
-    $self->on(message => sub {
+    my $c = shift;
+    $c->on(message => sub {
         my ($self, $page) = @_;
         for my $post ($self->posts->get_posts_from_query(undef, $page)->all) {
             $self->stash(post => $post);

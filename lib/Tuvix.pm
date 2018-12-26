@@ -4,9 +4,7 @@ use Tuvix::Model::Posts;
 use Tuvix::Model::BlogInfo;
 use Mojo::Unicode::UTF8;
 use Tuvix::Schema;
-
-#use Tuvix::Model::Posts;
-#se Blog::Model::Posts;#use Mojo::Pg;
+use Mojo::Headers;
 
 sub startup {
     my $self = shift;
@@ -30,7 +28,10 @@ sub startup {
 
     # Controller
     my $r = $self->routes;
-    $r->get('/' => sub {shift->redirect_to('posts')});
+    $r->get('/' => sub {
+        my $c = shift;
+        $c->res->headers->append(Link => sprintf '"<%s>; rel=\"webmention\"', $c->plerd->webmention_uri());
+        $c->redirect_to('posts')});
     $r->get('/posts')->to('posts#get_posts');
     $r->get('/posts/archive')->to('posts#get_archive');
     #$r->post('/posts/search')->to('posts#search');
