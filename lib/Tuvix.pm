@@ -23,15 +23,23 @@ sub startup {
     });
     $self->helper(recent_posts => sub {shift->posts->get_recent_posts()});;
 
-
     push @{$self->static->paths}, $self->plerd->publication_path;
 
     # Controller
     my $r = $self->routes;
+
     $r->get('/' => sub {
         my $c = shift;
-        $c->res->headers->append(Link => sprintf '"<%s>; rel=\"webmention\"', $c->plerd->webmention_uri());
-        $c->redirect_to('posts')});
+
+        my $webmention_url = (${$c->app->config}{listening_port_in_uris} // 0)
+            ? Mojo::URL->new('/webmention')->base($c->plerd->webmention_uri->base->port($c->tx->local_port))
+            : $c->plerd->webmention_uri();
+
+        $c->res
+            ->headers
+            ->append(Link => sprintf '"<%s>; rel=\"webmention\"', $webmention_url->to_abs);
+        $c->redirect_to('posts')
+    });
     $r->get('/posts')->to('posts#get_posts');
     $r->get('/posts/archive')->to('posts#get_archive');
     #$r->post('/posts/search')->to('posts#search');
@@ -39,6 +47,7 @@ sub startup {
     #$r->post('/webmention')->to('webmentions#process_webmention');
 
     $r->websocket('/more_posts')->to('posts#load_next');
+
 }
 
 1;

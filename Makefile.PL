@@ -16,7 +16,8 @@ WriteMakefile(
         'Moose'                    => '2.2011',
         'Plerd'                    => '1.72',
         'SQL::Translator'          => '0.11024',
-        'File::ChangeNotify'       => '0.29'
+        'File::ChangeNotify'       => '0.29',
+        'Web::Mention'             => '0'
     },
     test      => { TESTS => 't/*.t' }
 );

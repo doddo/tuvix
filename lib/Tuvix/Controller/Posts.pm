@@ -20,7 +20,13 @@ sub get_posts {
     my $posts_per_page = $c->param('posts_per_page') || 10;
     my $format = 'html';
 
-    $c->res->headers->append(Link => sprintf '"<%s>; rel=\"webmention\"', $c->plerd->webmention_uri());
+
+    my $webmention_url = (${$c->app->config}{listening_port_in_uris} // 0)
+        ? Mojo::URL->new('/webmention')->base($c->plerd->webmention_uri->base->port($c->tx->local_port))
+        : $c->plerd->webmention_uri();
+
+    $c->res->headers->append(Link => sprintf ('"<%s>; rel=\"webmention\"', $webmention_url->to_abs));
+
 
     if ($c->param('feed') && $c->param('feed') eq 'rss') {
         $posts_per_page = 100;
