@@ -6,25 +6,25 @@ use strict;
 use warnings FATAL => 'all';
 
 use Moose;
+use Mojo::URL;
 
 has 'newer_post' => (
-    isa => 'Maybe[Tuvix::Schema::Result::Post]',
-    is  => 'ro',
+    isa        => 'Maybe[Tuvix::Schema::Result::Post]',
+    is         => 'ro',
     lazy_build => 1
 );
 
 has 'older_post' => (
-    isa => 'Maybe[Tuvix::Schema::Result::Post]',
-    is  => 'ro',
+    isa        => 'Maybe[Tuvix::Schema::Result::Post]',
+    is         => 'ro',
     lazy_build => 1
 );
 
 has 'uri' => (
-    isa => 'Str',
-    is  => 'ro',
+    isa        => 'Mojo::URL',
+    is         => 'ro',
     lazy_build => 1
 );
-
 
 __PACKAGE__->load_components(qw/InflateColumn::DateTime/);
 __PACKAGE__->table('posts');
@@ -73,8 +73,7 @@ sub _build_older_post {
 }
 
 sub _build_uri {
-    return "/posts/" . shift->path();
+    return Mojo::URL->new("/posts/")->path(shift->path());
 }
-
 
 1;

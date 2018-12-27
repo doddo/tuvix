@@ -6,7 +6,7 @@ use Test::Mojo;
 use Mojolicious::Lite;
 use Mojo::Unicode::UTF8;
 
-use Web::Mention;
+use Tuvix::WebmentionTransmitter;
 
 use FindBin;
 
@@ -33,6 +33,16 @@ my $webmention_uri = Mojo::URL
 
 $t->get_ok('/posts')
     ->header_is(Link => sprintf '"<%s>; rel=\"webmention\"', $webmention_uri->to_abs);
+
+my $webmention_transmitter = Tuvix::WebmentionTransmitter->new(base_uri => $t->app->site_info->base_uri);
+
+my $posts = $dbh->resultset('Post');
+
+while (my $post = $posts->next){
+    my $res = $webmention_transmitter->send_webmentions($post);
+    ok ($$res{attempts} == 0, "No webmention attempts if no link is detected in the post body");
+}
+
 
 done_testing();
 
