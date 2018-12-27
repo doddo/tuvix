@@ -6,6 +6,7 @@ use Moose;
 use Mojo::URL;
 use Carp;
 
+
 use Web::Mention;
 
 has 'base_uri' => (
@@ -35,7 +36,7 @@ sub send_webmentions {
         ->path($post->path);
 
     my @wms = Web::Mention->new_from_html(
-        source => $source_uri,
+        source => $source_uri->to_abs->to_string,
         html   => $post->body,
     );
 
