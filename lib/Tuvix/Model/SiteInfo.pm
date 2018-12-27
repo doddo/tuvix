@@ -1,4 +1,4 @@
-package Tuvix::Model::BlogInfo;
+package Tuvix::Model::SiteInfo;
 use strict;
 use warnings FATAL => 'all';
 

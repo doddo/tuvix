@@ -22,8 +22,8 @@ sub get_posts {
 
 
     my $webmention_url = (${$c->app->config}{listening_port_in_uris} // 0)
-        ? Mojo::URL->new('/webmention')->base($c->plerd->webmention_uri->base->port($c->tx->local_port))
-        : $c->plerd->webmention_uri();
+        ? Mojo::URL->new('/webmention')->base($c->site_info->webmention_uri->base->port($c->tx->local_port))
+        : $c->site_info->webmention_uri();
 
     $c->res->headers->append(Link => sprintf ('"<%s>; rel=\"webmention\"', $webmention_url->to_abs));
 
@@ -41,7 +41,7 @@ sub get_posts {
 
     $c->stash(
         page  => $page,
-        title => $c->plerd->title,
+        title => $c->site_info->title,
         posts => $posts,
         path  => $c->req->url->path
     );
@@ -60,7 +60,7 @@ sub get_posts_from_path {
 
     $c->stash(
         page  => 1,
-        title => sprintf("%s - %s ", ($posts->all)[0]->title, $c->plerd->title),
+        title => sprintf("%s - %s ", ($posts->all)[0]->title, $c->site_info->title),
         posts => $posts
     );
     $c->render(
