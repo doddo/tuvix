@@ -3,6 +3,7 @@ use Mojo::Base 'Mojolicious';
 use Tuvix::Model::Posts;
 use Tuvix::Model::SiteInfo;
 use Mojo::Unicode::UTF8;
+use Mojo::URL;
 use Tuvix::Schema;
 use Mojo::Headers;
 
@@ -21,7 +22,10 @@ sub startup {
     $self->helper(posts => sub {
         Tuvix::Model::Posts->new(db => $self->config('db'), db_opts => $self->config('db_opts'))
     });
-    $self->helper(recent_posts => sub {shift->posts->get_recent_posts()});;
+    $self->helper(recent_posts => sub {shift->posts->get_recent_posts()});
+
+    $self->helper(base_url => sub {shift->site_info->base_uri});
+    $self->helper(webmention_url => sub {Mojo::URL->new('/webmention')->base(shift->site_info->base_uri)});
 
     push @{$self->static->paths}, $self->site_info->publication_path;
 
@@ -31,9 +35,7 @@ sub startup {
     $r->get('/' => sub {
         my $c = shift;
 
-        my $webmention_url = (${$c->app->config}{listening_port_in_uris} // 0)
-            ? Mojo::URL->new('/webmention')->base($c->site_info->webmention_uri->base->port($c->tx->local_port))
-            : $c->site_info->webmention_uri();
+        my $webmention_url = $c->webmention_url->to_abs;
 
         $c->res
             ->headers

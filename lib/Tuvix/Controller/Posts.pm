@@ -20,13 +20,8 @@ sub get_posts {
     my $posts_per_page = $c->param('posts_per_page') || 10;
     my $format = 'html';
 
-
-    my $webmention_url = (${$c->app->config}{listening_port_in_uris} // 0)
-        ? Mojo::URL->new('/webmention')->base($c->site_info->webmention_uri->base->port($c->tx->local_port))
-        : $c->site_info->webmention_uri();
-
-    $c->res->headers->append(Link => sprintf ('"<%s>; rel=\"webmention\"', $webmention_url->to_abs));
-
+    $c->res->headers->append(
+        Link => sprintf('"<%s>; rel=\"webmention\"', $c->webmention_url->to_abs));
 
     if ($c->param('feed') && $c->param('feed') eq 'rss') {
         $posts_per_page = 100;
@@ -55,6 +50,9 @@ sub get_posts_from_path {
     my $c = shift;
     my $path = $c->param('postpath');
     my $posts = $c->posts->get_posts_from_query({ 'path' => $path });
+
+    $c->res->headers->append(
+        Link => sprintf('"<%s>; rel=\"webmention\"', $c->webmention_url->to_abs));
 
     return $c->reply->not_found unless ($posts->count);
 
@@ -109,8 +107,8 @@ sub get_archive {
 
     $c->stash(
         wanted => $wanted_date_start,
-        title => 'Archive',
-        posts => $posts,
+        title  => 'Archive',
+        posts  => $posts,
     );
     $c->render(
         template => 'archive',

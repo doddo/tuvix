@@ -6,8 +6,7 @@ use Moose;
 use Mojo::URL;
 use Carp;
 
-
-use Web::Mention;
+use Web::Mention::Mojo;
 
 has 'base_uri' => (
     isa      => 'Mojo::URL',
@@ -22,7 +21,7 @@ has 'log' => (
 );
 
 
-sub send_webmentions {
+sub get_webmentions_from_post {
     my $self = shift;
     my $post = shift;
     unless ($post->isa('Tuvix::Schema::Result::Post')) {
@@ -33,12 +32,20 @@ sub send_webmentions {
 
     my $source_uri = $self
         ->base_uri
-        ->path($post->path);
+        ->path($post->uri);
 
-    my @wms = Web::Mention->new_from_html(
+    return Web::Mention::Mojo->new_from_html(
         source => $source_uri->to_abs->to_string,
         html   => $post->body,
     );
+
+}
+
+
+sub send_webmentions {
+    my $self = shift;
+    my $post = shift;
+    my @wms = $self->get_webmentions_from_post($post);
 
     my %report = (
         attempts  => 0,
@@ -47,6 +54,7 @@ sub send_webmentions {
     );
     foreach (@wms) {
         $report{attempts}++;
+
         if ($_->send) {
             $self->log->info(sprintf "Sent webmention to endpoint [%s] from [%s] %s",
                 $_->target, $post->guid(), $post->title);
