@@ -46,7 +46,15 @@ has '+source' => (
     coerce   => 1,
 );
 
-has 'original_source' => (
+has '+endpoint' => (
+    isa      => 'Maybe[URL]',
+    is       => 'ro',
+    required => 1,
+    coerce   => 1,
+);
+
+
+has '+original_source' => (
     isa        => 'URL',
     is         => 'ro',
     lazy_build => 1,
@@ -118,7 +126,7 @@ sub _build_endpoint {
     # Is it in the HTML?
     unless ($endpoint) {
         if ($headers && $headers->can('content_type') && $headers->content_type =~ m{^text/html\b}) {
-            my $dom = Mojo::DOM58->new($response->res->content->body);
+            my $dom = Mojo::DOM58->new($response->res->content->get_body_chunk);
             my $nodes_ref = $dom->find(
                 'link[rel~="webmention"], a[rel~="webmention"]'
             );
@@ -129,10 +137,33 @@ sub _build_endpoint {
         }
     }
 
-    return undef unless defined $endpoint;
+    return defined $endpoint
+        ? Mojo::URL->new($endpoint)->to_abs
+        : undef
 
-    return Mojo::Url->new($endpoint)->to_abs;
+}
 
+sub send {
+    my $self = shift;
+
+    my $endpoint = $self->endpoint;
+    my $source = $self->source;
+    my $target = $self->target;
+
+    unless ( $endpoint ) {
+        return 0;
+    }
+
+    # Step three: send the webmention to the target!
+    my $response = $self->ua->post(
+        $self->endpoint => {'Content-Type' => 'application/x-www-form-urlencoded'} => "source=$source&target=$target"
+    );
+
+    #my $response = $self->ua->request($request);
+
+    #$self->response( $response );
+
+    return ! $response->res->error;
 }
 
 

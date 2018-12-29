@@ -33,9 +33,9 @@ my $webmention_uri = Mojo::URL
     ->base(Mojo::URL->new($t->app->site_info->base_uri->port($port)));
 
 $t->app->helper(webmention_url => sub {
-   Mojo::URL
-    ->new('/webmention')
-    ->base(Mojo::URL->new($t->app->site_info->base_uri->port($port)));
+    Mojo::URL
+        ->new('/webmention')
+        ->base(Mojo::URL->new($t->app->site_info->base_uri->port($port)));
 });
 
 $t->get_ok('/posts')
@@ -78,16 +78,20 @@ foreach my $webmention (@webmentions) {
 
     cmp_ok($webmention->source, 'eq',
         Mojo::URL->new($t->app->site_info->base_uri)->port($port)->path(sprintf '/posts/%s', $post_with_webmentions->path),
-        'Path of created webmention matches origin post');
+        'Webmention source is OK');
+    cmp_ok($webmention->target, 'eq', $webmention_target_uri, "Webmention target is OK");
 
     ok($webmention->verify, 'Webmention is verified OK');
 
-    cmp_ok($webmention->author->name, 'eq', $post_with_webmentions->author_name(), 'Author of webmention is OK');
+    cmp_ok($webmention->author->name, 'eq', $post_with_webmentions->author_name(), 'Webmention author is OK');
 
-    #TODO: {
-    #    local $TODO = "Fix so that the webmentions can use the Mojo-ua";
-    #    ok($webmention->send);
-    #};
+    cmp_ok($webmention->endpoint, 'eq', $webmention_uri, "Webmention endpoint is OK");
+
+    TODO: {
+        local $TODO = "Will work when webmention reception works";
+        ok($webmention->send, 'Webmention sent OK');
+    }
+
 }
 
 done_testing();
