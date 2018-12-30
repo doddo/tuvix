@@ -21,7 +21,7 @@ sub get_posts {
     my $format = 'html';
 
     $c->res->headers->append(
-        Link => sprintf('"<%s>; rel=\"webmention\"', $c->webmention_url->to_abs));
+        Link => sprintf('<%s>; rel="webmention"', $c->webmention_url->to_abs));
 
     if ($c->param('feed') && $c->param('feed') eq 'rss') {
         $posts_per_page = 100;
@@ -52,7 +52,7 @@ sub get_posts_from_path {
     my $posts = $c->posts->get_posts_from_query({ 'path' => $path });
 
     $c->res->headers->append(
-        Link => sprintf('"<%s>; rel=\"webmention\"', $c->webmention_url->to_abs));
+        Link => sprintf('<%s>; rel="webmention"', $c->webmention_url->to_abs));
 
     return $c->reply->not_found unless ($posts->count);
 

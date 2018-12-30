@@ -39,7 +39,11 @@ $t->app->helper(webmention_url => sub {
 });
 
 $t->get_ok('/posts')
-    ->header_is(Link => sprintf '"<%s>; rel=\"webmention\"', $webmention_uri->to_abs);
+    ->header_is(Link => sprintf '<%s>; rel="webmention"', $webmention_uri->to_abs);
+
+
+$t->post_ok('/webmention')
+    ->status_is(400);
 
 my $webmention_transmitter = Tuvix::WebmentionTransmitter->new(base_uri => $t->app->site_info->base_uri->port($port));
 
@@ -85,12 +89,9 @@ foreach my $webmention (@webmentions) {
 
     cmp_ok($webmention->author->name, 'eq', $post_with_webmentions->author_name(), 'Webmention author is OK');
 
-    cmp_ok($webmention->endpoint, 'eq', $webmention_uri, "Webmention endpoint is OK");
+    cmp_ok($webmention->endpoint, 'eq', $webmention_uri->to_abs, "Webmention endpoint is OK");
 
-    TODO: {
-        local $TODO = "Will work when webmention reception works";
-        ok($webmention->send, 'Webmention sent OK');
-    }
+    ok($webmention->send, 'Webmention delivered and accepted OK');
 
 }
 

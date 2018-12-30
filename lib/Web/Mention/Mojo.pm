@@ -13,18 +13,25 @@ use Web::Microformats2::Parser;
 
 use Try::Tiny;
 
+use HTTP::Link;
+
 extends 'Web::Mention';
 
 
 # ¯\_(ツ)_/¯
 *Mojo::URL::eq = sub {
-    my $self = shift;
-    return $self->to_abs->to_string eq shift->to_abs->to_string;
+    return shift->to_abs->to_string eq
+        shift->to_abs->to_string;
 };
 
 *Mojo::URL::as_string = sub {
     return shift->to_abs->to_string;
 };
+
+has 'error' => (
+    isa => 'Maybe[HashRef]',
+    is  => 'rw'
+);
 
 class_has '+ua' => (
     isa     => 'Mojo::UserAgent',
@@ -52,7 +59,6 @@ has '+endpoint' => (
     required => 1,
     coerce   => 1,
 );
-
 
 has '+original_source' => (
     isa        => 'URL',
@@ -115,7 +121,7 @@ sub _build_endpoint {
     my $headers = $response->res->can('headers') ? $response->res->headers : undef;
 
     if ($headers && $headers->can('link') && $headers->link) {
-        my @header_links = HTTP::Link->parse($headers->link . '');
+        my @header_links = HTTP::Link->parse($headers->link);
         foreach (@header_links) {
             if ($_->{relation} eq 'webmention') {
                 $endpoint = $_->{iri};
@@ -150,20 +156,18 @@ sub send {
     my $source = $self->source;
     my $target = $self->target;
 
-    unless ( $endpoint ) {
+    unless ($endpoint) {
         return 0;
     }
 
     # Step three: send the webmention to the target!
     my $response = $self->ua->post(
-        $self->endpoint => {'Content-Type' => 'application/x-www-form-urlencoded'} => "source=$source&target=$target"
+        $self->endpoint => { 'Content-Type' => 'application/x-www-form-urlencoded' } => "source=$source&target=$target"
     );
 
-    #my $response = $self->ua->request($request);
+    $self->error($response->res->error);
 
-    #$self->response( $response );
-
-    return ! $response->res->error;
+    return !$response->res->error;
 }
 
 

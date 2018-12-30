@@ -39,14 +39,14 @@ sub startup {
 
         $c->res
             ->headers
-            ->append(Link => sprintf '"<%s>; rel=\"webmention\"', $webmention_url->to_abs);
+            ->append(Link => sprintf '<%s>; rel="webmention"', $webmention_url->to_abs);
         $c->redirect_to('posts')
     });
     $r->get('/posts')->to('posts#get_posts');
     $r->get('/posts/archive')->to('posts#get_archive');
     #$r->post('/posts/search')->to('posts#search');
     $r->get('/posts/#postpath')->to('posts#get_posts_from_path');
-    #$r->post('/webmention')->to('webmentions#process_webmention');
+    $r->post('/webmention')->to('webmentions#process_webmention');
 
     $r->websocket('/more_posts')->to('posts#load_next');
 
