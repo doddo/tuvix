@@ -23,24 +23,22 @@ sub process_webmention {
 
     my $path = $webmention->target->path;
 
-    #my $post = $c->posts->get_post_from_url($path);
+    if ($path->parts->[0] eq 'posts') {
+        my $posts = $c->posts->get_posts_from_query({ 'path' => $path->parts->[-1] });
 
-    if ($path->parts->[0] eq 'posts'){
-    my $posts = $c->posts->get_posts_from_query({ 'path' => $path->parts->[-1] });
+        unless ($posts->count) {
+            $c->render(
+                status => 404,
+                text   => sprintf("Target post [%s] not found.", $webmention->target->path)
+            );
+            return;
 
-    unless ($posts->count) {
-        $c->render(
-            status => 404,
-            text   => sprintf("Target post [%s] not found.", $webmention->target->path)
-        );
-        return;
+        }
+
+        $c->render(status => 202, text => "👍The webmention has arrived and will be delt with in due time.");
 
     }
-
-    $c->render(status => 202, text => "👍The webmention has arrived and will be delt with in due time.");
-
-
-    } else {
+    else {
         $c->render(
             status => 404,
             text   => sprintf("Target not found.")
