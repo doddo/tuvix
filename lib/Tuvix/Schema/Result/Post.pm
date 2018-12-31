@@ -39,6 +39,8 @@ __PACKAGE__->has_many(comments => 'Tuvix::Schema::Result::Comment', 'guid');
 
 __PACKAGE__->resultset_class('Tuvix::Schema::ResultSet::Post');
 
+
+
 sub _build_newer_post {
     my $self = shift;
 

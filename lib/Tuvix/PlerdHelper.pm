@@ -139,10 +139,7 @@ sub publish_all {
         die "Unable to preform transaction\n";
     };
     return $rs
-
 }
-
-
 
 sub _build_schema {
     my $self = shift;

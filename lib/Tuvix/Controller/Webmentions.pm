@@ -32,11 +32,9 @@ sub process_webmention {
                 text   => sprintf("Target post [%s] not found.", $webmention->target->path)
             );
             return;
-
         }
 
         $c->render(status => 202, text => "👍The webmention has arrived and will be delt with in due time.");
-
     }
     else {
         $c->render(
@@ -44,7 +42,6 @@ sub process_webmention {
             text   => sprintf("Target not found.")
         );
     }
-
 }
 
 

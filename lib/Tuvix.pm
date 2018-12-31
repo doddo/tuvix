@@ -6,6 +6,8 @@ use Mojo::Unicode::UTF8;
 use Mojo::URL;
 use Tuvix::Schema;
 use Mojo::Headers;
+use Minion::Backend::SQLite;
+use Mojo::SQLite;
 
 sub startup {
     my $self = shift;
@@ -26,6 +28,10 @@ sub startup {
 
     $self->helper(base_url => sub {shift->site_info->base_uri});
     $self->helper(webmention_url => sub {Mojo::URL->new('/webmention')->base(shift->site_info->base_uri)});
+
+    # For the minions
+    $self->helper(sqlite => sub {
+        state $sqlite = Mojo::SQLite->new(substr(@{$self->config('db')}[0], 4))});
 
     push @{$self->static->paths}, $self->site_info->publication_path;
 
@@ -50,6 +56,20 @@ sub startup {
 
     $r->websocket('/more_posts')->to('posts#load_next');
 
+    #
+    # Share the database connection cache
+    $self->plugin('Mojolicious::Plugin::Minion', { SQLite => $self->sqlite });
+
+    $self->minion->add_task(something_slow => sub {
+        my ($job, @args) = @_;
+        $self->log->info("This is a background worker process. for $job") ;
+    });
+    $self->minion->enqueue(something_slow => ['foo', 'bar']);
+
+    my $worker = $self->minion->worker;
+    #$worker->status->{jobs} = 12;
+    $worker->run;
+    #$self->minion->perform_jobs;
 }
 
 1;
