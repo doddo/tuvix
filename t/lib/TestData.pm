@@ -14,7 +14,6 @@ use Mojolicious::Commands;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(create_testdb);
 
-
 sub create_testdb {
 
     plugin 'Config' => { file => 'assets/tuvix.conf' };

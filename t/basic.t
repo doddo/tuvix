@@ -7,7 +7,7 @@ use Mojo::Unicode::UTF8;
 
 use FindBin;
 
-BEGIN {unshift @INC, ("$FindBin::Bin", "$FindBin::Bin/../lib")}
+BEGIN {unshift @INC, ("$FindBin::Bin/lib", "$FindBin::Bin/../lib")}
 
 use TestData qw\create_testdb\;
 
