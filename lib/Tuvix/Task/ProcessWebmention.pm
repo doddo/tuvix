@@ -17,7 +17,7 @@ sub register {
             }
             catch {
                 my $err = shift || 'unknown error';
-                $job->app->log->info('Invalid webmention from: %s to %s: %s ',
+                $job->fail('Invalid webmention from: %s to %s: %s ',
                     $webmention->source, $webmention->target, $err);
             };
 
@@ -32,6 +32,7 @@ sub register {
                 # SOMETHING->POSSIBLY_DELETE_WEBMENTION
             }
         }
+        $job->finish('All went well!');
     });
 
     $app->minion->add_task(send_webmention => sub {
@@ -39,22 +40,22 @@ sub register {
         while (my $webmention = shift) {
             try {
                 if ($webmention->send) {
-                    $self->log->info(sprintf "Webmention to endpoint [%s] from [%s] sent.",
+                    $job->app->log->info(sprintf "Webmention to endpoint [%s] from [%s] sent.",
                         $webmention->target, $webmention->source);
                 }
                 elsif ($_->endpoint) {
-                    $self->log->info(sprintf "Webmention to endpoint [%s] from [%s] sent,"
+                    $job->app->log->info(sprintf "Webmention to endpoint [%s] from [%s] sent,"
                         . "but no delivery confirmation recieved.",
                         $webmention->target, $webmention->source());
                 }
             }
             catch {
                 my $err = shift || 'unknown error';
-                $self->log->info(sprintf "Webmentionto endpoint [%s] from [%s] crashed: %s.",
+                $job->fail(sprintf "Webmentionto endpoint [%s] from [%s] crashed: %s.",
                     $webmention->target, $webmention->source, $err);
             }
-
         }
+        $job->finish('All went well!');
     });
 }
 
