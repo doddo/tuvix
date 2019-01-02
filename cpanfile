@@ -8,6 +8,8 @@ requires 'Mojolicious', '8.07';
 requires 'Mojo::Unicode::UTF8', '0.002';
 requires 'Mojolicious::Commands';
 
+requires 'Minion::Backend::SQLite'; # TBD
+
 requires 'Moose';
 requires 'Plerd';
 requires 'SQL::Translator';

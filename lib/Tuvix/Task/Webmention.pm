@@ -1,4 +1,4 @@
-package Tuvix::Task::ProcessWebmention;
+package Tuvix::Task::Webmention;
 use strict;
 use warnings FATAL => 'all';
 

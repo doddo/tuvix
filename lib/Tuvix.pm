@@ -2,12 +2,15 @@ package Tuvix;
 use Mojo::Base 'Mojolicious';
 use Tuvix::Model::Posts;
 use Tuvix::Model::SiteInfo;
+use Tuvix::Task::Watcher;
 use Mojo::Unicode::UTF8;
 use Mojo::URL;
+
 use Tuvix::Schema;
 use Mojo::Headers;
 use Minion::Backend::SQLite;
 use Mojo::SQLite;
+
 
 sub startup {
     my $self = shift;
@@ -30,10 +33,12 @@ sub startup {
     $self->helper(webmention_url => sub {Mojo::URL->new('/webmention')->base(shift->site_info->base_uri)});
 
     # For the minions
+    # Maybe they ought to have their own db # TODO
     $self->helper(sqlite => sub {
         state $sqlite = Mojo::SQLite->new(substr(@{$self->config('db')}[0], 4))});
 
     push @{$self->static->paths}, $self->site_info->publication_path;
+
 
     # Controller
     my $r = $self->routes;
@@ -60,16 +65,8 @@ sub startup {
     # Share the database connection cache
     $self->plugin('Mojolicious::Plugin::Minion', { SQLite => $self->sqlite });
 
-    $self->minion->add_task(something_slow => sub {
-        my ($job, @args) = @_;
-        $self->log->info("This is a background worker process. for $job") ;
-    });
-    $self->minion->enqueue(something_slow => ['foo', 'bar']);
-
-    my $worker = $self->minion->worker;
-    #$worker->status->{jobs} = 12;
-    $worker->run;
-    #$self->minion->perform_jobs;
+    # The watcher
+    $self->plugin('Tuvix::Task::Watcher');
 }
 
 1;
