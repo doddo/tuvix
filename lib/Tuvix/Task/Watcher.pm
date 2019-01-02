@@ -11,8 +11,6 @@ use Mojo::Unicode::UTF8;
 use Mojo::Util qw(slugify);
 
 
-
-
 sub register {
     my ($self, $app) = @_;
     my $log = Mojo::Log->new;
@@ -25,9 +23,9 @@ sub register {
         my $plerd;
         my $plerd_helper;
 
-
         return $job->finish('Previous job is still active') unless
-            my $guard = $app->minion->guard('watcher', 7200);
+            my $guard = $app->minion->guard('watch_dir_lock', 7200);
+
 
         try {
 
@@ -78,8 +76,8 @@ sub register {
                                 }
                             }
                             if ($post) {
-                                $self->plerd_helper->create_or_update_post($post);
-                                $post->send_webmentions if $self->send_webmentions;
+                                $plerd_helper->create_or_update_post($post);
+                                # TODO $post->send_webmentions if $self->send_webmentions;
                             }
                             else {
                                 $job->app->log->error(
