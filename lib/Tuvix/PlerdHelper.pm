@@ -7,6 +7,7 @@ use Data::GUID;
 
 use Moose;
 use Mojo::Log;
+use Mojo::URL;
 use Mojo::Unicode::UTF8;
 use Mojo::Util qw(slugify);
 
@@ -17,6 +18,13 @@ has 'db' => (
     is       => 'ro',
     isa      => 'ArrayRef',
     required => 1
+);
+
+has 'base_path' => (
+    is      => 'ro',
+    isa     => 'Mojo::URL',
+    # TODO app->routes->lookup( 'posts' )
+    default => sub {Mojo::URL->new()->path('/posts/')}
 );
 
 has 'db_opts' => (
@@ -75,8 +83,11 @@ sub create_or_update_post {
 
     unless ($post->path()) {
         # Find a name which is not allocated already ...
-        my $path_base = join '-', ($post->date->ymd, slugify($plerd_post->title, 1));
-        my $path = $path_base;
+
+
+        my $post_slug = join '-', ($post->date->ymd, slugify($plerd_post->title, 1));
+        my $path = $self->base_path->path->merge($post_slug)->to_string;
+        my $path_base = $path;
         my $i = 0;
         while ($schema->resultset('Post')->find({ path => $path })) {
             $path = sprintf '%s-%i', $path_base, $i++

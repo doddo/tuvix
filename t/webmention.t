@@ -82,7 +82,7 @@ foreach my $webmention (@webmentions) {
     $payload = $webmention->TO_JSON();
 
     cmp_ok($webmention->source, 'eq',
-        Mojo::URL->new($t->app->site_info->base_uri)->port($port)->path(sprintf '/posts/%s', $post_with_webmentions->path),
+        Mojo::URL->new($t->app->site_info->base_uri)->port($port)->path($post_with_webmentions->path),
         'Webmention source is OK');
     cmp_ok($webmention->target, 'eq', $webmention_target_uri, "Webmention target is OK");
 

@@ -36,7 +36,7 @@ __PACKAGE__->add_unique_constraint([ 'path' ]);
 __PACKAGE__->add_unique_constraint([ 'source_file' ]);
 
 __PACKAGE__->has_many(comments => 'Tuvix::Schema::Result::Comment', 'guid');
-__PACKAGE__->has_many(webmentions => 'Tuvix::Schema::Result::Webmention', 'guid');
+__PACKAGE__->has_many(webmentions => 'Tuvix::Schema::Result::Webmention', 'path');
 
 __PACKAGE__->resultset_class('Tuvix::Schema::ResultSet::Post');
 
@@ -76,7 +76,7 @@ sub _build_older_post {
 }
 
 sub _build_uri {
-    return Mojo::URL->new("/posts/")->path(shift->path());
+    return Mojo::URL->new()->path(shift->path());
 }
 
 1;

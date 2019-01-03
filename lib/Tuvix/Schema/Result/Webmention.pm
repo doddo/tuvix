@@ -10,7 +10,7 @@ __PACKAGE__->table('webmention');
 # 'type' => (
 #     isa => Enum[qw(rsvp reply like repost quotation mention)],
 
-__PACKAGE__->add_columns(qw/guid type target source status/);
+__PACKAGE__->add_columns(qw/type path source status/);
 
 __PACKAGE__->add_columns(
     time_recieved => { data_type => 'DateTime' },
@@ -28,10 +28,9 @@ __PACKAGE__->add_columns(
     author_name    => { is_nullable => 1 },
 );
 
-__PACKAGE__->set_primary_key('guid');
+__PACKAGE__->add_unique_constraint([ qw(path source type) ]);
 
-__PACKAGE__->add_unique_constraint([ qw(guid source type) ]);
-
-__PACKAGE__->belongs_to('post' => 'Tuvix::Schema::Result::Post', 'guid');
+# Webmention "target" maps to a post Path.
+__PACKAGE__->belongs_to('post' => 'Tuvix::Schema::Result::Post', 'path');
 
 1;

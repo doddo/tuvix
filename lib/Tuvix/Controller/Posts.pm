@@ -48,8 +48,8 @@ sub get_posts {
 
 sub get_posts_from_path {
     my $c = shift;
-    my $path = $c->param('postpath');
-    my $posts = $c->posts->get_posts_from_query({ 'path' => $path });
+
+    my $posts = $c->posts->get_posts_from_query({ 'path' => $c->url_for });
 
     $c->res->headers->append(
         Link => sprintf('<%s>; rel="webmention"', $c->webmention_url->to_abs));
