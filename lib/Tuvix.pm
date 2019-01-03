@@ -32,6 +32,15 @@ sub startup {
     $self->helper(base_url => sub {shift->site_info->base_uri});
     $self->helper(webmention_url => sub {Mojo::URL->new('/webmention')->base(shift->site_info->base_uri)});
 
+    # For the websocket URI
+    $self->helper(websocket_url => sub {
+        my $self = shift;
+        return Mojo::URL
+            ->new('/more_posts')
+            ->host_port($self->site_info->base_uri->host_port)
+            ->scheme(($self->config('ssl_on') // 1) ? 'wss' : 'ws')
+    });
+
     # For the minions
     # Maybe they ought to have their own db # TODO
     $self->helper(sqlite => sub {
