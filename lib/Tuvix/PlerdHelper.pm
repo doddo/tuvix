@@ -41,7 +41,7 @@ has 'log' => (
 
 has 'plerd' => (
     is      => 'ro',
-    isa     => 'Plerd',
+    isa     => 'Tuvix::ExtendedPlerd',
     default => sub {{}}
 );
 

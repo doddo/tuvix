@@ -1,6 +1,7 @@
 package Tuvix::Task::Watcher;
 
-use Plerd;
+use Tuvix::ExtendedPlerd;
+
 use Tuvix::PlerdHelper;
 use File::ChangeNotify;
 use Try::Tiny;
@@ -14,9 +15,7 @@ use Mojo::Util qw(slugify);
 sub register {
     my ($self, $app) = @_;
     my $log = Mojo::Log->new;
-
-    $log->info("Fucking shit thing.");
-
+    
     $app->minion->add_task(watch_directory => sub {
         my $job = shift;
         my $watcher;
@@ -26,11 +25,10 @@ sub register {
         return $job->finish('Previous job is still active') unless
             my $guard = $app->minion->guard('watch_dir_lock', 7200);
 
-
         try {
 
             my $filter;
-            $plerd = Plerd->new($app->config('plerd'));
+            $plerd = Tuvix::ExtendedPlerd->new($app->config('plerd'));
             $plerd_helper = Tuvix::PlerdHelper->new(
                 db      => \@{$app->config('db')},
                 db_opts => $app->config('db_opts'),
