@@ -15,7 +15,7 @@ __PACKAGE__->set_primary_key('guid');
 
 
 __PACKAGE__->add_unique_constraint([qw( author_name guid comment )]);
-__PACKAGE__->belongs_to('post' => 'Tuvix::Schema::Result::Post', 'guid');
+__PACKAGE__->belongs_to('posts' => 'Tuvix::Schema::Result::Post', 'guid');
 
 
 1;

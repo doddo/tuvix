@@ -31,7 +31,9 @@ __PACKAGE__->table('posts');
 __PACKAGE__->add_columns(qw/guid title body author_name path source_file/);
 __PACKAGE__->add_columns(date => { data_type => 'DateTime' });
 __PACKAGE__->add_columns(description => { is_nullable => 1 });
+
 __PACKAGE__->set_primary_key('guid');
+
 __PACKAGE__->add_unique_constraint([ 'path' ]);
 __PACKAGE__->add_unique_constraint([ 'source_file' ]);
 

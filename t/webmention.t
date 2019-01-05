@@ -73,6 +73,7 @@ my @webmentions = $webmention_mgr->get_webmentions_from_post($post_with_webmenti
 
 ok(@webmentions == 1, 'Correct amount of one (1) webmention created');
 
+my @webmentions_to_save;
 my $payload;
 foreach my $webmention (@webmentions) {
     isa_ok($webmention, 'Web::Mention', 'output from Model::Webmentions');
@@ -88,11 +89,37 @@ foreach my $webmention (@webmentions) {
 
     ok($webmention->verify, 'Webmention is verified OK');
 
+    push(@webmentions_to_save, $webmention);
+
     cmp_ok($webmention->author->name, 'eq', $post_with_webmentions->author_name(), 'Webmention author is OK');
 
     cmp_ok($webmention->endpoint, 'eq', $webmention_uri->to_abs, "Webmention endpoint is OK");
 
     ok($webmention->send, 'Webmention delivered and accepted OK');
+
+}
+
+my $wms = $dbh->resultset('Webmention');
+
+foreach my $verified_webmention (@webmentions_to_save) {
+
+    ok(my $webmention_db = $wms->from_webmention($verified_webmention),
+        'Create webmention DB model from Web::Mention object');
+    ok(defined($webmention_db), 'Successful creation of Webmention DB object.');
+
+    cmp_ok($webmention_db->in_storage, '==', 0);
+
+    ok($webmention_db->insert, "New webmention saved in DB");
+
+    cmp_ok($webmention_db->in_storage, '==', 1);
+
+    TODO: {
+        local $TODO = "Sending the same webmention again after it's been saved should return the one in storage";
+        ok(my $webmention_db_again = $wms->from_webmention($verified_webmention));
+        cmp_ok($webmention_db->in_storage, '==', 0);
+    }
+
+
 
 }
 
