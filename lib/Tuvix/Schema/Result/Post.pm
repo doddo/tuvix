@@ -43,7 +43,6 @@ __PACKAGE__->has_many(webmentions => 'Tuvix::Schema::Result::Webmention', 'path'
 __PACKAGE__->resultset_class('Tuvix::Schema::ResultSet::Post');
 
 
-
 sub _build_newer_post {
     my $self = shift;
 
@@ -79,6 +78,18 @@ sub _build_older_post {
 
 sub _build_uri {
     return Mojo::URL->new()->path(shift->path());
+}
+
+sub get_webmentions {
+    my $self = shift;
+    my $schema = $self->result_source->schema;
+
+
+    return $schema->resultset('Webmention')->search(
+        {
+            'path' => $self->get_column('path')
+        }
+    );
 }
 
 1;

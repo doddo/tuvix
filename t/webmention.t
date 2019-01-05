@@ -12,6 +12,8 @@ use FindBin;
 
 BEGIN {unshift @INC, ("$FindBin::Bin/lib", "$FindBin::Bin/../lib")}
 
+plan tests => 39;
+
 use TestData qw\create_testdb\;
 
 my $dbh = create_testdb;
@@ -120,6 +122,19 @@ foreach my $verified_webmention (@webmentions_to_save) {
     }
 
 
+}
+
+my $wms = $dbh->resultset('Webmention');
+
+cmp_ok($wms->count, '==', @webmentions_to_save);
+cmp_ok($wms->count, '>', 0);
+
+while (my $wm = $wms->next) {
+    my $post = $wm->get_post;
+    cmp_ok($post->path, 'eq', $wm->path);
+    isa_ok($post, 'Tuvix::Schema::Result::Post', '$wm->get_post returns its associated post and nothing else');
+    cmp_ok($post->get_webmentions->search({ 'path' => $wm->path})->next->path, 'eq', $wm->path,
+        'The Post associated with the Webmention is associated back to the same webmention');
 
 }
 

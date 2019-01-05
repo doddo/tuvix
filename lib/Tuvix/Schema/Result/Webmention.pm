@@ -35,4 +35,16 @@ __PACKAGE__->belongs_to('posts' => 'Tuvix::Schema::Result::Post', 'path');
 # Result source with some nifty helpers!
 __PACKAGE__->resultset_class('Tuvix::Schema::ResultSet::Webmention');
 
+sub get_post {
+    my $self = shift;
+    my $schema = $self->result_source->schema;
+    my $rs = $schema->resultset('Post')->search(
+        {
+            'path' => $self->get_column('path')
+        }
+    );
+    return $rs->next;
+
+}
+
 1;
