@@ -2,10 +2,15 @@ package Tuvix;
 use Mojo::Base 'Mojolicious';
 use Tuvix::Model::Posts;
 use Tuvix::Model::SiteInfo;
+use Tuvix::Task::Watcher;
 use Mojo::Unicode::UTF8;
 use Mojo::URL;
+
 use Tuvix::Schema;
 use Mojo::Headers;
+use Minion::Backend::SQLite;
+use Mojo::SQLite;
+
 
 sub startup {
     my $self = shift;
@@ -27,7 +32,22 @@ sub startup {
     $self->helper(base_url => sub {shift->site_info->base_uri});
     $self->helper(webmention_url => sub {Mojo::URL->new('/webmention')->base(shift->site_info->base_uri)});
 
+    # For the websocket URI
+    $self->helper(websocket_url => sub {
+        my $self = shift;
+        return Mojo::URL
+            ->new('/more_posts')
+            ->host_port($self->site_info->base_uri->host_port)
+            ->scheme(($self->config('ssl_on') // 1) ? 'wss' : 'ws')
+    });
+
+    # For the minions
+    # Maybe they ought to have their own db # TODO
+    $self->helper(sqlite => sub {
+        state $sqlite = Mojo::SQLite->new(substr(@{$self->config('db')}[0], 4))});
+
     push @{$self->static->paths}, $self->site_info->publication_path;
+
 
     # Controller
     my $r = $self->routes;
@@ -50,6 +70,12 @@ sub startup {
 
     $r->websocket('/more_posts')->to('posts#load_next');
 
+    #
+    # Share the database connection cache
+    $self->plugin('Mojolicious::Plugin::Minion', { SQLite => $self->sqlite });
+
+    # The watcher
+    $self->plugin('Tuvix::Task::Watcher');
 }
 
 1;

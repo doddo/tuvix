@@ -6,7 +6,7 @@ use Test::Mojo;
 use Mojolicious::Lite;
 use Mojo::Unicode::UTF8;
 
-use Tuvix::WebmentionTransmitter;
+use Tuvix::Model::Webmentions;
 
 use FindBin;
 
@@ -41,18 +41,19 @@ $t->app->helper(webmention_url => sub {
 $t->get_ok('/posts')
     ->header_is(Link => sprintf '<%s>; rel="webmention"', $webmention_uri->to_abs);
 
-
 $t->post_ok('/webmention')
     ->status_is(400);
 
-my $webmention_transmitter = Tuvix::WebmentionTransmitter->new(base_uri => $t->app->site_info->base_uri->port($port));
+my $webmention_mgr = Tuvix::Model::Webmentions->new(base_uri => $t->app->site_info->base_uri->port($port));
 
 my $posts = $dbh->resultset('Post');
 
 my @posts = $posts->all;
 
 foreach my $post (@posts) {
-    my $res = $webmention_transmitter->send_webmentions($post);
+    my @wms = $webmention_mgr->get_webmentions_from_post($post);
+    my $res = $webmention_mgr->send_webmentions(@wms);
+
     ok($$res{attempts} == 0, "No webmention attempts if no link is detected in the post body");
 
 }
@@ -68,20 +69,20 @@ $post_with_webmentions->body($body);
 $post_with_webmentions->update();
 $t->get_ok('/');
 
-my @webmentions = $webmention_transmitter->get_webmentions_from_post($post_with_webmentions);
+my @webmentions = $webmention_mgr->get_webmentions_from_post($post_with_webmentions);
 
 ok(@webmentions == 1, 'Correct amount of one (1) webmention created');
 
 my $payload;
 foreach my $webmention (@webmentions) {
-    isa_ok($webmention, 'Web::Mention', 'output from WebmentionTransmitter::get');
-    isa_ok($webmention, 'Web::Mention::Mojo', 'output from WebmentionTransmitter::get');
+    isa_ok($webmention, 'Web::Mention', 'output from Model::Webmentions');
+    isa_ok($webmention, 'Web::Mention::Mojo', 'output from Model::Webmention');
 
     $webmention->ua($t->ua);
     $payload = $webmention->TO_JSON();
 
     cmp_ok($webmention->source, 'eq',
-        Mojo::URL->new($t->app->site_info->base_uri)->port($port)->path(sprintf '/posts/%s', $post_with_webmentions->path),
+        Mojo::URL->new($t->app->site_info->base_uri)->port($port)->path($post_with_webmentions->path),
         'Webmention source is OK');
     cmp_ok($webmention->target, 'eq', $webmention_target_uri, "Webmention target is OK");
 

@@ -14,13 +14,6 @@ has 'base_uri' => (
     coerce   => 1
 );
 
-has 'websocket_uri' => (
-    isa        => 'URL',
-    is         => 'rw',
-    required   => 0,
-    lazy_build => 1
-);
-
 has 'title' => (
     isa      => 'Str',
     is       => 'ro',
@@ -45,12 +38,6 @@ has 'publication_path' => (
     required => 1
 );
 
-sub _build_websocket_uri {
-    my $self = shift;
-    return Mojo::URL
-        ->new("/more_posts")
-        ->base(Mojo::URL->new($self->base_uri)->scheme('ws'))
-}
 
 
 1;

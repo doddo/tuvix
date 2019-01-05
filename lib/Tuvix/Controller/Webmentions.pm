@@ -24,7 +24,7 @@ sub process_webmention {
     my $path = $webmention->target->path;
 
     if ($path->parts->[0] eq 'posts') {
-        my $posts = $c->posts->get_posts_from_query({ 'path' => $path->parts->[-1] });
+        my $posts = $c->posts->get_posts_from_query({ 'path' => $path });
 
         unless ($posts->count) {
             $c->render(
@@ -32,11 +32,10 @@ sub process_webmention {
                 text   => sprintf("Target post [%s] not found.", $webmention->target->path)
             );
             return;
-
         }
 
         $c->render(status => 202, text => "👍The webmention has arrived and will be delt with in due time.");
-
+        # TODO Start a task HERE
     }
     else {
         $c->render(
@@ -44,7 +43,6 @@ sub process_webmention {
             text   => sprintf("Target not found.")
         );
     }
-
 }
 
 

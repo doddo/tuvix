@@ -13,6 +13,8 @@ use Web::Microformats2::Parser;
 
 use Try::Tiny;
 
+use Mojo::Util qw\url_escape\;
+
 use HTTP::Link;
 
 extends 'Web::Mention';
@@ -78,7 +80,7 @@ sub verify {
     # sites like Tumblr, who treat outgoing hyperlinks as weird internally-
     # pointing links that pass external URLs as query-string parameters.
     if (($response->result->body =~ $self->target)
-        || ($response->result->body =~ uri_escape($self->target))
+        || ($response->result->body =~ url_escape($self->target))
     ) {
         $self->time_verified(DateTime->now);
         $self->source_html($response->result->body);

@@ -4,7 +4,7 @@ use Test::More;
 use Test::Mojo;
 use Mojolicious::Lite;
 use Mojo::Unicode::UTF8;
-use Plerd;
+use Tuvix::ExtendedPlerd;
 use Tuvix::PlerdHelper;
 
 use FindBin;
@@ -23,7 +23,7 @@ sub create_testdb {
 
     my $config_ref = app->config('plerd');
 
-    my $plerd = Plerd->new($config_ref);
+    my $plerd = Tuvix::ExtendedPlerd->new($config_ref);
     my $ph = Tuvix::PlerdHelper->new(
         db      => \@{app->config('db')},
         db_opts => app->config('db_opts'),

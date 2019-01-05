@@ -9,11 +9,11 @@ BEGIN {unshift @INC, "$FindBin::Bin/../lib"}
 use Mojo::Unicode::UTF8;
 use Mojolicious::Lite;
 
-use Plerd;
 use Plerd::Util;
 
 use Try::Tiny;
 use Tuvix;
+use Tuvix::ExtendedPlerd;
 use Tuvix::PlerdHelper;
 
 use feature qw/say/;
@@ -45,7 +45,7 @@ plugin 'DefaultHelpers';
 
 my $config_ref = app->config('plerd');
 
-my $plerd = Plerd->new($config_ref);
+my $plerd = Tuvix::ExtendedPlerd->new($config_ref);
 
 my $ph = Tuvix::PlerdHelper->new(
     db      => \@{app->config('db')},

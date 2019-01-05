@@ -1,4 +1,4 @@
-package Tuvix::WebmentionTransmitter;
+package Tuvix::Model::Webmentions;
 use strict;
 use warnings FATAL => 'all';
 
@@ -41,28 +41,25 @@ sub get_webmentions_from_post {
 
 }
 
-
 sub send_webmentions {
     my $self = shift;
-    my $post = shift;
-    my @wms = $self->get_webmentions_from_post($post);
 
     my %report = (
         attempts  => 0,
         delivered => 0,
         sent      => 0,
     );
-    foreach (@wms) {
+    foreach (@_) {
         $report{attempts}++;
 
         if ($_->send) {
-            $self->log->info(sprintf "Sent webmention to endpoint [%s] from [%s] %s",
-                $_->target, $post->guid(), $post->title);
+            $self->log->info(sprintf "Sent webmention to endpoint [%s] from [%s].",
+                $_->target, $_->source);
             $report{delivered}++;
         }
         elsif ($_->endpoint) {
-            $self->log->info(sprintf "Sent webmention (but delivery was not confirmed) to endpoint [%s] from [%s] %s",
-                $_->target, $post->guid(), $post->title);
+            $self->log->info(sprintf "Sent webmention (but delivery was not confirmed) to endpoint [%s] from [%s].",
+                $_->target, $_->source());
             $report{sent}++;
         }
     }
