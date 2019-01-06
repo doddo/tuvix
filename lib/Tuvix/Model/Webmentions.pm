@@ -30,12 +30,14 @@ sub get_webmentions_from_post {
         return;
     }
 
-    my $source_uri = $self
-        ->base_uri
-        ->path($post->uri);
+    my $source_uri = Mojo::URL
+        ->new($self->base_uri)
+        ->path($post->uri->path)
+        ->to_abs
+        ->to_string;
 
     return Web::Mention::Mojo->new_from_html(
-        source => $source_uri->to_abs->to_string,
+        source => $source_uri,
         html   => $post->body,
     );
 

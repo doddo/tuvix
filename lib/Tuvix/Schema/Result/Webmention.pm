@@ -10,21 +10,22 @@ __PACKAGE__->table('webmention');
 # 'type' => (
 #     isa => Enum[qw(rsvp reply like repost quotation mention)],
 
-
 # 'status' => (
 #     isa => Enum[qw(pending approved rejected)],
 
-
-__PACKAGE__->add_columns(qw/type path source status/);
-
 __PACKAGE__->add_columns(
-    time_received => { data_type => 'DateTime' },
-    time_verified => { data_type => 'DateTime' },
-    endpoint      => { is_nullable => 1 },
-    content       => { is_nullable => 1 },
-    author_name   => { is_nullable => 1 },
-    author_url    => { is_nullable => 1 },
-    author_photo  => { is_nullable => 1 },
+    type            => { is_nullable => 0 },
+    path            => { is_nullable => 0 },
+    source          => { is_nullable => 0 },
+    original_source => { is_nullable => 0 },
+    status          => { is_nullable => 0 },
+    time_received   => { data_type => 'DateTime' },
+    time_verified   => { data_type => 'DateTime' },
+    endpoint        => { is_nullable => 1 },
+    content         => { is_nullable => 1 },
+    author_name     => { is_nullable => 1 },
+    author_url      => { is_nullable => 1 },
+    author_photo    => { is_nullable => 1 },
 );
 
 __PACKAGE__->add_unique_constraint([ qw(path source type) ]);

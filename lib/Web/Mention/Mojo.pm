@@ -120,7 +120,9 @@ sub _build_endpoint {
 
     # Is it in the Link HTTP header?
     my $response = $self->ua->get($target);
-    my $headers = $response->res->can('headers') ? $response->res->headers : undef;
+    my $headers = $response->res->can('headers')
+        ? $response->res->headers
+        : undef;
 
     if ($headers && $headers->can('link') && $headers->link) {
         my @header_links = HTTP::Link->parse($headers->link);
@@ -145,6 +147,7 @@ sub _build_endpoint {
         }
     }
 
+    # TODO make sure that the URL is an absolute one
     return defined $endpoint
         ? Mojo::URL->new($endpoint)->to_abs
         : undef

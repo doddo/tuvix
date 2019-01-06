@@ -39,19 +39,24 @@
 %}
 </div>
 
-% if ($post->comments->count > 0) {
+% my $webmentions = $post->get_webmentions;
+% if ($webmentions->count > 0) {
 <hr />
 <h3>Responses from around the web...</h3>
+
     <div class="row">
         <div class="col-xs-6">
+% $self->stash(post => $post);
 %= include '_likes'
             </div>
             <div class="col-xs-6">
+% $self->stash(post => $post);
 %= include '_reposts'
             </div>
         </div>
         <div class="row">
             <div class="col-xs-12">
+% $self->stash(webmentions => $webmentions);
 %= include '_responses'
             </div>
         </div>

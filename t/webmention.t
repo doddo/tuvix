@@ -6,13 +6,15 @@ use Test::Mojo;
 use Mojolicious::Lite;
 use Mojo::Unicode::UTF8;
 
-use Tuvix::Model::Webmentions;
-
 use FindBin;
 
 BEGIN {unshift @INC, ("$FindBin::Bin/lib", "$FindBin::Bin/../lib")}
 
-plan tests => 39;
+
+
+plan tests => 40;
+
+use_ok('Tuvix::Model::Webmentions');
 
 use TestData qw\create_testdb\;
 
@@ -118,9 +120,8 @@ foreach my $verified_webmention (@webmentions_to_save) {
     TODO: {
         local $TODO = "Sending the same webmention again after it's been saved should return the one in storage";
         ok(my $webmention_db_again = $wms->from_webmention($verified_webmention));
-        cmp_ok($webmention_db->in_storage, '==', 0);
+        cmp_ok($webmention_db_again->in_storage, '==', 1);
     }
-
 
 }
 
@@ -133,8 +134,12 @@ while (my $wm = $wms->next) {
     my $post = $wm->get_post;
     cmp_ok($post->path, 'eq', $wm->path);
     isa_ok($post, 'Tuvix::Schema::Result::Post', '$wm->get_post returns its associated post and nothing else');
-    cmp_ok($post->get_webmentions->search({ 'path' => $wm->path})->next->path, 'eq', $wm->path,
+    cmp_ok($post->get_webmentions->search({ 'path' => $wm->path })->next->path, 'eq', $wm->path,
         'The Post associated with the Webmention is associated back to the same webmention');
+
+    $t->get_ok($wm->path)
+        ->status_is(200)
+        ->content_like(qr/Reactions from/i);
 
 }
 

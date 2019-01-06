@@ -43,21 +43,32 @@ sub from_webmention {
     # TODO
     $wms->status('pending');
 
-    foreach my $attr (qw/time_received time_verified endpoint content type source/) {
+    foreach my $attr (qw/time_received time_verified endpoint content type source original_source/) {
         if ($attr =~ /^time_/) {
             if (!$wms->$attr) {
                 $wms->$attr($webmention->$attr);
             }
         }
         else {
-            $wms->$attr($webmention->$attr);
+            if (!$wms->$attr || $wms->$attr ne $webmention->$attr) {
+                if ($attr eq 'endpoint' || $attr =~ /source$/) {
+                    # Its urls !!
+                    $wms->$attr($webmention->$attr->to_abs->to_string);
+                }
+                else {
+                    $wms->$attr($webmention->$attr);
+                }
+            }
         }
     }
 
     if ($webmention_author) {
         foreach my $attr (qw/name url photo/) {
             my $tattr = "author_" . $attr;
-            $wms->$tattr($webmention_author->$attr);
+
+            if (!$wms->$tattr || $wms->$tattr ne $webmention->author->$attr) {
+                $wms->$tattr($webmention->author->$attr);
+            }
         }
     }
 
