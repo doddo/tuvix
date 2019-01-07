@@ -69,6 +69,7 @@ has '+original_source' => (
     coerce     => 1,
 );
 
+
 sub verify {
     my $self = shift;
 

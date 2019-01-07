@@ -9,7 +9,7 @@
             <data class="p-name" value="<%= $post->author_name %>"></data>
         </data>
         <data class="p-summary" value="<%= $post->description %>"></data>
-        <data class="u-url u-uid" value="<%= $post->uri =%>"></data>
+        <data class="u-url u-uid" value="<%=  base_url->path($post->path)->to_abs %>"></data>
 
         <div class="body e-content">
             <%== $post->body %>

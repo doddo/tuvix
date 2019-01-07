@@ -15,7 +15,7 @@
             </div>
             <div class="media-body">
                 % if ($wm->type eq 'mention') {
-                <h4 class="media-heading">Mentioned on <a href="<%= $wm->original_source %>"><%= $wm->original_source->host %></a>...</h4>
+                <h4 class="media-heading">Mentioned on <a href="<%= $wm->original_source %>"><%= Mojo::URL->new($wm->original_source)->host %></a>...</h4>
                 % } else {
                 <h4 class="media-heading"><a href="<%= $wm->author_url %>"><%= $wm->author_name %></a></h4>
                 % }

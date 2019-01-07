@@ -12,7 +12,7 @@ BEGIN {unshift @INC, ("$FindBin::Bin/lib", "$FindBin::Bin/../lib")}
 
 
 
-plan tests => 40;
+plan tests => 46;
 
 use_ok('Tuvix::Model::Webmentions');
 
@@ -40,6 +40,13 @@ $t->app->helper(webmention_url => sub {
     Mojo::URL
         ->new('/webmention')
         ->base(Mojo::URL->new($t->app->site_info->base_uri->port($port)));
+});
+
+
+$t->app->helper(base_url => sub {
+    Mojo::URL
+        ->new()
+        ->base($t->app->site_info->base_uri->port($port));
 });
 
 $t->get_ok('/posts')
@@ -93,6 +100,9 @@ foreach my $webmention (@webmentions) {
 
     ok($webmention->verify, 'Webmention is verified OK');
 
+    ok(defined $webmention->$_->base, "webmention [".
+        $webmention->$_->to_string. "] has base for $_ url") for qw/original_source source target/;
+
     push(@webmentions_to_save, $webmention);
 
     cmp_ok($webmention->author->name, 'eq', $post_with_webmentions->author_name(), 'Webmention author is OK');
@@ -139,7 +149,7 @@ while (my $wm = $wms->next) {
 
     $t->get_ok($wm->path)
         ->status_is(200)
-        ->content_like(qr/Reactions from/i);
+        ->content_like(qr\<h4 class="media-heading">Mentioned on <a href=".*">localhost</a>\i);
 
 }
 
