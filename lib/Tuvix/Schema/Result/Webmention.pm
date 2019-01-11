@@ -28,7 +28,7 @@ __PACKAGE__->add_columns(
     author_photo    => { is_nullable => 1 },
 );
 
-__PACKAGE__->add_unique_constraint([ qw(path source type) ]);
+__PACKAGE__->add_unique_constraint(path_source_type => [ qw(path source type) ]);
 
 # Webmention "target" maps to a post Path.
 __PACKAGE__->belongs_to('posts' => 'Tuvix::Schema::Result::Post', 'path');

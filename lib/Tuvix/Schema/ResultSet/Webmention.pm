@@ -28,6 +28,7 @@ sub from_webmention {
         ->path
         ->to_string;
 
+    # UNIQUE constraint: webmention.path, webmention.source,w ebmention.type
     my $wms = $self->find_or_new(
         {
             'me.path'   => $target_path,
@@ -35,13 +36,11 @@ sub from_webmention {
             'me.type'   => $webmention->type
         },
         {
-            join     => 'posts',
-            prefetch => 'posts' # return post data too
+            key => 'path_source_type',
         }
     );
 
-    # TODO
-    $wms->status('pending');
+    $wms->status('pending') if (!$wms->in_storage);
 
     foreach my $attr (qw/time_received time_verified endpoint content type source original_source/) {
         if ($attr =~ /^time_/) {
