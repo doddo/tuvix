@@ -6,7 +6,7 @@ use DBIx::Class::ResultSet;
 use Carp;
 use Moose;
 
-# TODO Deprecate this package.
+# TODO Deprecate this package. -- Move func. to ResultSet.
 
 has 'db' => (
     isa      => 'ArrayRef',

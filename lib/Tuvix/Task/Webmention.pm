@@ -17,16 +17,39 @@ sub register {
             }
             catch {
                 my $err = shift || 'unknown error';
-                $job->fail('Invalid webmention from: %s to %s: %s ',
-                    $webmention->source, $webmention->target, $err);
+                $job->fail(sprintf('Invalid webmention from: [%s] to [%s]: %s ',
+                    $webmention->source, $webmention->target, $err));
             };
 
             if ($webmention->is_verified) {
-                $job->app->log->info('Webmention of type "%s" from %s to %s is verifed.',
-                    $webmention->source, $webmention->target);
-                # SOMETHING->ADD_WEBMENTION
+                $job->app->log->debug(sorintf('Webmention of type "%s" from: [%s] to [%s] is verifed.',
+                    $webmention->source, $webmention->target));
+
+                if (my $wm = $self->schema->resultSet('Webmention')->from_webmention($webmention)) {
+                    if (!$wm->in_storage || !$wm->is_changed) {
+                        try {
+                            # TODO: add shitlist filter here
+                            $wm->insert_or_update();
+
+                            my $msg = sorintf('Webmention of type "%s" from: [%s] to [%s] is successfully added.',
+                                $webmention->source, $webmention->target);
+                            $job->app->log->info($smg);
+                            $job->finish($msg);
+                        }
+                        catch {
+                            my $err = shift || "Unknown error";
+                            $job->fail(sprintf('Cannot save webmention from: [%s] to [%s] in the DB: %s ',
+                                $webmention->source, $webmention->target, $err));
+                        }
+                    }
+                }
+                else {
+                    $job->fail(sprintf('verified Webmention of type "%s" from [%s] to [%s] cannot be created.',
+                        $webmention->source, $webmention->target));
+                }
             }
             else {
+                # TODO: handle
                 $job->app->log->info('Not able to verify webmention from, maybe a delete: %s to %s.',
                     $webmention->source, $webmention->target);
                 # SOMETHING->POSSIBLY_DELETE_WEBMENTION

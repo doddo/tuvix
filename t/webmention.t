@@ -145,12 +145,9 @@ foreach my $verified_webmention (@webmentions_to_save) {
 
     cmp_ok($webmention_db->in_storage, '==', 1);
 
-    TODO: {
-        local $TODO = "Sending the same webmention again after it's been saved should return the one in storage";
-        ok(my $webmention_db_again = $dbh->resultset('Webmention')->from_webmention($verified_webmention));
-        cmp_ok($webmention_db_again->in_storage, '==', 1);
-        ok(!$webmention_db_again->is_changed(), 'Webmention should be just gotten 2nd time')
-    }
+    ok(my $webmention_db_again = $dbh->resultset('Webmention')->from_webmention($verified_webmention));
+    cmp_ok($webmention_db_again->in_storage, '==', 1);
+    ok(!$webmention_db_again->is_changed(), 'Webmention should be just gotten 2nd time')
 
 }
 
