@@ -32,12 +32,17 @@ has 'author_name' => (
     required => 1
 );
 
+has 'author_photo' => (
+    isa      => 'URL',
+    is       => 'rw',
+    required => 0,
+    default  => sub {Mojo::URL->new('/assets/generic_face.png')}
+);
+
 has 'publication_path' => (
     isa      => 'Str',
     is       => 'ro',
     required => 1
 );
-
-
 
 1;

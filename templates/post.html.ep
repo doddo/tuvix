@@ -46,12 +46,12 @@
 
     <div class="row">
         <div class="col-xs-6">
-% $self->stash(post => $post);
-%= include '_likes'
+% $self->stash(webmentions => $webmentions, type => 'like');
+%= include '_facepile'
             </div>
             <div class="col-xs-6">
-% $self->stash(post => $post);
-%= include '_reposts'
+% $self->stash(webmentions => $webmentions, type => 'repost');
+%= include '_facepile'
             </div>
         </div>
         <div class="row">

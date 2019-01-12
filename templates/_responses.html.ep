@@ -5,7 +5,7 @@
             <div class="media-left">
                 % if ( $wm->type eq 'mention' ) {
                 <a rel="nofollow" href="<%= $wm->original_source %>">
-                <img class="media-object" src="/images/comment.png" alt="A generic word balloon" style="max-width:32px; max-height:32px;">
+                <img class="media-object" src="/assets/comment.png" alt="A generic word balloon" style="max-width:32px; max-height:32px;">
                 </a>
                 % } else {
                 <a rel="nofollow" href="<%= $wm->author_url %>">

@@ -11,8 +11,7 @@ use FindBin;
 BEGIN {unshift @INC, ("$FindBin::Bin/lib", "$FindBin::Bin/../lib")}
 
 
-
-plan tests => 157;
+plan tests => 143;
 
 use_ok('Tuvix::Model::Webmentions');
 
@@ -70,15 +69,13 @@ foreach my $post (@posts) {
 my $post_with_webmentions = shift(@posts);
 my $webmention_target_uri = Mojo::URL->new($posts[0]->uri)->base($t->app->site_info->base_uri->port($port))->to_abs;
 my $many_webmentions = <<'END_BODY';
-<!DOCTYPE html>
-<div class="h-entry">
-<a href="http://example.com/reply-target" class="u-in-reply-to">A reply.</a>
-<a href="http://example.com/mention-target">A generic mention.</a></p>
-<a href="http://example.com/mention-target">Check this out.</a></p>
-<a href="http://example.com/quotation-target" class="u-quotation-of">A quotation.</a></p>
-<a href="http://example.com/like-target" class="u-like-of">A like.</a></p>
-<a href="http://example.com/repost-target" class="u-repost-of">A repost.</a></p>
-</div>"
+       <!-- a Webmention from a source can have ony one type per target -->
+       <a href="http://example.com/reply-target" class="u-in-reply-to">A reply.</a>
+       <a href="http://example.com/mention-target">A generic mention.</a></p>
+       <a href="http://example.com/mention-target">Check this out.</a></p>
+       <a href="http://example.com/quotation-target" class="u-quotation-of">A quotation.</a></p>
+       <a href="http://example.com/like-target" class="u-like-of">A like.</a></p>
+       <a href="http://example.com/repost-target" class="u-repost-of">A repost.</a></p>
 
 END_BODY
 
@@ -96,13 +93,17 @@ my @webmentions = $webmention_mgr->get_webmentions_from_post($post_with_webmenti
 
 cmp_ok(@webmentions, '==', 6);
 
+# Set the UA so that it can be tested w the $t: Mojo::Test
+$_->ua($t->ua) for @webmentions;
+my @types = map {$_->type} @webmentions;
+
 my @webmentions_to_save;
 my $payload;
 foreach my $webmention (@webmentions) {
     isa_ok($webmention, 'Web::Mention', 'output from Model::Webmentions');
     isa_ok($webmention, 'Web::Mention::Mojo', 'output from Model::Webmention');
 
-    $webmention->ua($t->ua);
+    #$webmention->ua($t->ua);
     $payload = $webmention->TO_JSON();
 
     cmp_ok($webmention->source, 'eq',
@@ -127,70 +128,26 @@ foreach my $webmention (@webmentions) {
 
 cmp_ok(@webmentions_to_save, '==', @webmentions);
 
-my $wms = $dbh->resultset('Webmention');
-
-my $wm_author = Web::Mention::Author->new(
-    name => "Mr. P",
-);
-
-my $like_wm = Web::Mention::Mojo->new(
-    is_verified   => 1,
-    source        => 'http://foobar.example.com/source',
-    target        => $webmention_target_uri,
-    author        => $wm_author,
-    endpoint      => $webmention_uri->to_abs,
-    time_verified => DateTime->now,
-
-    ua            => ($t->ua),
-    type          => 'like',
-    source_html   => <<'END_BODY'
-
-        <!DOCTYPE html>
-<head>
-<title>This page contains links with various microformats attached.</title>
-</head>
-<div class="h-entry">
-<p>
-<a href="http://example.com/reply-target" class="u-in-reply-to">A reply.</a>
-</p>
-<a href="http://example.com/mention-target">A generic mention.</a></p>
-<a href="http://example.com/quotation-target" class="u-quotation-of">A quotation.</a></p>
-<a href="http://example.com/like-target" class="u-like-of">A like.</a></p>
-<a href="http://example.com/some-other-target" class="u-like-of">A like of some other target, just to spice things up.</a></p>
-<a href="http://example.com/repost-target" class="u-repost-of">A repost.</a></p>
-<p>
-Hooray!
-</p>
-</div>",
-
-END_BODY
-
-);
-
-$like_wm->is_tested(1);
-
-push(@webmentions_to_save, $like_wm);
-
 foreach my $verified_webmention (@webmentions_to_save) {
 
-    ok(my $webmention_db = $wms->from_webmention($verified_webmention),
+    ok(my $webmention_db = $dbh->resultset('Webmention')->from_webmention($verified_webmention),
         'Create webmention DB model from Web::Mention object');
     ok(defined($webmention_db), 'Successful creation of Webmention DB object.');
 
     TODO: {
         local $TODO = "A page may have multiple webmentions in it from same source to same target."
-        . "When one is recieved: scrape source for ALL of them, and remove any and all such not find in original source";
+            . "Figure out what is the proper way to handle such a situation.";
         cmp_ok($webmention_db->in_storage, '==', 0);
     }
 
 
-    ok($webmention_db->insert_or_update, "New webmention saved in DB");
+    ok($webmention_db->insert_or_update, sprintf "New webmention (type %s) saved in DB", $webmention_db->type);
 
     cmp_ok($webmention_db->in_storage, '==', 1);
 
     TODO: {
         local $TODO = "Sending the same webmention again after it's been saved should return the one in storage";
-        ok(my $webmention_db_again = $wms->from_webmention($verified_webmention));
+        ok(my $webmention_db_again = $dbh->resultset('Webmention')->from_webmention($verified_webmention));
         cmp_ok($webmention_db_again->in_storage, '==', 1);
         ok(!$webmention_db_again->is_changed(), 'Webmention should be just gotten 2nd time')
     }
@@ -200,7 +157,7 @@ foreach my $verified_webmention (@webmentions_to_save) {
 my $wms = $dbh->resultset('Webmention');
 
 TODO: {
-    local $TODO = "All webmentions from source should be put in here and nothing else, even if type is the same? !";
+    local $TODO = "Read how the spec says about same webmention source -> target but the kind is different!";
     cmp_ok($wms->count, '==', @webmentions_to_save);
 }
 cmp_ok($wms->count, '>', 0);
@@ -214,7 +171,7 @@ while (my $wm = $wms->next) {
 
     $t->get_ok($wm->path)
         ->status_is(200)
-        ->content_like(qr\<h4 class="media-heading">Mentioned on <a href=".*">localhost</a>\i);
+        ->content_like(qr\alt="Foobar avatar" \i);
 
 }
 
