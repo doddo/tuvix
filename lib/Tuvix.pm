@@ -80,8 +80,9 @@ sub startup {
     # Share the database connection cache
     $self->plugin('Mojolicious::Plugin::Minion', { SQLite => $self->sqlite });
 
-    # The watcher
+    # The Tasks
     $self->plugin('Tuvix::Task::Watcher');
+    $self->plugin('Tuvix::Task::Webmention');
 }
 
 1;

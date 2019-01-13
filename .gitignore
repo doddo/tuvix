@@ -1,5 +1,6 @@
 # The test db
 t/assets/tuvix.db
+t/dbnam*
 
 !Build/
 .last_cover_stats
