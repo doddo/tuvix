@@ -22,12 +22,15 @@ my $config = app->config;
 
 my $t = Test::Mojo->new('Tuvix', $config);
 
+$t->ua->connect_timeout(1);
+$t->ua->request_timeout(1);
+
 $t->app->helper(posts => sub {
     Tuvix::Model::Posts->new(schema => $dbh)
 });
 
 $t->app->helper(schema => sub {
-    $dbh;
+    return $dbh;
 });
 
 
@@ -45,6 +48,9 @@ $t->app->helper(base_url => sub {
         ->new()
         ->base($t->app->site_info->base_uri->port($port));
 });
+
+$t->app->helper(ua => sub {$t->ua});
+
 
 my $webmention_mgr = Tuvix::Model::Webmentions->new(base_uri => $t->app->site_info->base_uri->port($port));
 
@@ -89,7 +95,7 @@ my $worker = $t->app->minion->worker;
 while (my $job = $worker->register->dequeue(0)) {
 
     ok($job->perform, 'job can preform OK.');
-        cmp_ok($job->info->{result}, 'eq', 'successful');
+    cmp_ok($job->info->{result}, 'eq', 'successful');
 }
 
 done_testing();
