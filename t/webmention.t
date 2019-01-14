@@ -11,7 +11,7 @@ use FindBin;
 BEGIN {unshift @INC, ("$FindBin::Bin/lib", "$FindBin::Bin/../lib")}
 
 
-plan tests => 143;
+plan tests => 152;
 
 use_ok('Tuvix::Model::Webmentions');
 
@@ -46,17 +46,38 @@ $t->app->helper(base_url => sub {
         ->base($t->app->site_info->base_uri->port($port));
 });
 
+my $posts = $dbh->resultset('Post');
+my @posts = $posts->all;
+
+# Now proceed with some tests
+
 $t->get_ok('/posts')
     ->header_is(Link => sprintf '<%s>; rel="webmention"', $webmention_uri->to_abs);
 
 $t->post_ok('/webmention')
-    ->status_is(400);
+    ->status_is(400)
+    ->content_like(qr/Malformed webmention:/);
 
+$t->post_ok('/webmention' => form => {
+    source => 'http://localhost/foo_source',
+    target => 'http://localhost/foo_target_som_inte_finns' })
+    ->status_is(404)
+    ->content_like(qr/Target not found/);
+
+$t->post_ok('/webmention' => form => {
+    source => 'http://localhost/foo_source',
+    target =>  Mojo::URL->new($posts[-1]->uri)->base($t->app->site_info->base_uri->port($port))->to_abs })
+    ->status_is(202)
+    ->content_like(qr/The webmention has arrived and will be delt with in due time/);
+
+$t->get_ok(Mojo::URL->new($posts[-1]->uri)->base($t->app->site_info->base_uri->port($port))->to_abs )
+    ->header_is(Link => sprintf '<%s>; rel="webmention"', $webmention_uri->to_abs);
+
+
+# TODO: Deprecate
 my $webmention_mgr = Tuvix::Model::Webmentions->new(base_uri => $t->app->site_info->base_uri->port($port));
 
-my $posts = $dbh->resultset('Post');
 
-my @posts = $posts->all;
 
 foreach my $post (@posts) {
     my @wms = $webmention_mgr->get_webmentions_from_post($post);

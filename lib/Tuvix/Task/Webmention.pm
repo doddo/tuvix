@@ -3,29 +3,46 @@ use strict;
 use warnings FATAL => 'all';
 
 use Web::Mention::Mojo;
+use Data::Dumper;
+
+use JSON;
 
 use Try::Tiny;
 use Mojo::Base 'Mojolicious::Plugin';
+
+use JSON;
+
+my $json = JSON->new->convert_blessed;
 
 sub register {
     my ($self, $app) = @_;
 
     $app->minion->add_task(receive_webmention => sub {
-        my $job = shift;
-        my $webmention = Web::Mention::Mojo->FROM_JSON(shift);
+        my ($job, $wm_serialized) = @_;
+
+        my $webmention;
+
+        try {
+            $webmention = Web::Mention::Mojo
+                ->FROM_JSON($json->decode($wm_serialized));
+        }
+        catch {
+            my $err = shift || 'unknown error';
+             $job->fail("Unable to deserialize webmention from:[%s] error: [%s].",  Dumper($wm_serialized), $err)
+        };
 
         $app->log->info(sprintf('Processing incoming webmention from: [%s] to [%s].',
-                $webmention->source, $webmention->target));
+            $webmention->source, $webmention->target));
 
-        if ($job->app->can('ua') && $app->ua) {
+        if ($app->can('ua') && $app->ua) {
             # So that it can be tested, but also so that custom settings can be provided
             # such like user agent and timeouts usw.
-            $job->app->log->debug('Setting UA for  webmention from: ', $webmention->source);
+            $app->log->debug(sprintf('Setting UA for  webmention from: [%s]', $webmention->source));
 
             $webmention->ua($app->ua)
         }
 
-        $job->app->log->info('Processing incoming webmention from: ', $webmention->source);
+        $app->log->info('Processing incoming webmention from: ', $webmention->source);
         try {
             $webmention->verify()
         }
@@ -73,8 +90,13 @@ sub register {
     });
 
     $app->minion->add_task(send_webmention => sub {
-        my $job = shift;
-        my $webmention = shift;
+        my ($job, $wm_json) = @_;
+        my $webmention = Web::Mention::Mojo
+            ->FROM_JSON($json->decode($wm_json));
+
+        if ($webmention->source && $webmention->target) {
+            $job->fail("Unable to deserialize webmention from: " . Dumper($wm_json))
+        }
 
         if ($job->app->can('ua') && $app->ua) {
             # So that it can be tested, but also so that custom settings can be provided

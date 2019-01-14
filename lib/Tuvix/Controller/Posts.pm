@@ -12,7 +12,6 @@ use DateTime;
 use strict;
 use warnings FATAL => 'all';
 
-
 sub get_posts {
     my $c = shift;
     my $page = $c->param('page') || 1;
