@@ -40,3 +40,8 @@ inc/
 
 nytprof
 _build_params
+
+# Tuvix files
+*.pid
+tuvix.conf
+
