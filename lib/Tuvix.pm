@@ -3,6 +3,7 @@ use Mojo::Base 'Mojolicious';
 use Tuvix::Model::Posts;
 use Tuvix::Model::SiteInfo;
 use Tuvix::Task::Watcher;
+use Tuvix::Schema::ResultSet::Webmention;
 use Mojo::Unicode::UTF8;
 use Mojo::URL;
 
@@ -27,6 +28,11 @@ sub startup {
     $self->helper(posts => sub {
         Tuvix::Model::Posts->new(db => $self->config('db'), db_opts => $self->config('db_opts'))
     });
+
+    $self->helper(schema => sub {
+        state $schema = Tuvix::Schema->connect($self->config('db'), self->config('db_opts'))
+    });
+
     $self->helper(recent_posts => sub {shift->posts->get_recent_posts()});
 
     $self->helper(base_url => sub {shift->site_info->base_uri});
@@ -74,8 +80,9 @@ sub startup {
     # Share the database connection cache
     $self->plugin('Mojolicious::Plugin::Minion', { SQLite => $self->sqlite });
 
-    # The watcher
+    # The Tasks
     $self->plugin('Tuvix::Task::Watcher');
+    $self->plugin('Tuvix::Task::Webmention');
 }
 
 1;

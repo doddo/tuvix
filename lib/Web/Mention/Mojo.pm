@@ -7,6 +7,7 @@ use MooseX::ClassAttribute;
 
 use Mojo::UserAgent;
 use Mojo::URL;
+use Mojo::Log;
 
 use Tuvix::TypeConstraints;
 use Web::Microformats2::Parser;
@@ -33,6 +34,12 @@ extends 'Web::Mention';
 has 'error' => (
     isa => 'Maybe[HashRef]',
     is  => 'rw'
+);
+
+has 'log' => (
+    isa     => 'Mojo::Log',
+    is      => 'rw',
+    default => sub {Mojo::Log->new()}
 );
 
 class_has '+ua' => (
@@ -69,6 +76,7 @@ has '+original_source' => (
     coerce     => 1,
 );
 
+
 sub verify {
     my $self = shift;
 
@@ -87,6 +95,8 @@ sub verify {
         $self->_clear_mf2;
         $self->_clear_content;
         $self->_clear_author;
+        $self->log->debug(sprintf "Verified webmention. Source:[%s] Target:[%s] Endpoint:[%s]",
+            $self->source, $self->target, $self->endpoint);
         return 1;
     }
     else {
@@ -120,7 +130,9 @@ sub _build_endpoint {
 
     # Is it in the Link HTTP header?
     my $response = $self->ua->get($target);
-    my $headers = $response->res->can('headers') ? $response->res->headers : undef;
+    my $headers = $response->res->can('headers')
+        ? $response->res->headers
+        : undef;
 
     if ($headers && $headers->can('link') && $headers->link) {
         my @header_links = HTTP::Link->parse($headers->link);
@@ -133,6 +145,7 @@ sub _build_endpoint {
 
     # Is it in the HTML?
     unless ($endpoint) {
+        $self->log->debug("No webmention link found in the Target headers of: " .  $target);
         if ($headers && $headers->can('content_type') && $headers->content_type =~ m{^text/html\b}) {
             my $dom = Mojo::DOM58->new($response->res->content->get_body_chunk);
             my $nodes_ref = $dom->find(
@@ -145,6 +158,7 @@ sub _build_endpoint {
         }
     }
 
+    # TODO make sure that the URL is an absolute one
     return defined $endpoint
         ? Mojo::URL->new($endpoint)->to_abs
         : undef

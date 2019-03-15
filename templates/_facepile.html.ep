@@ -1,14 +1,14 @@
-
+% my $wm_selection = $webmentions->search({'type' =>  lc($type)});
+    <h4><%= $type %></h4>
     <p>
-    % $count = 0;
-    % foreach  my $webmention (@{$post->ordered_webmentions}) {
-        % if ($webmention->type eq $type){
-            <a href="<%= $webmention->author->url %>"><img class="facepile" src="<%= $webmention->author->photo %>" alt="<%= $webmention->author->name %> avatar" style="width:32px"></a>
-            % $count++;
-        % }
-        % unless ($count) {
-          (None yet!)
-        %}
+% if ($wm_selection->count){
+    % while (my $wm = $wm_selection->next) {
+        <a href="<%= $wm->author_url %>"><img class="facepile" src="<%= $wm->author_photo || '/assets/generic_face.png' %>" alt="<%= $wm->author_name %> avatar" style="width:32px"></a>
     </p>
     % }
+% } else {
+    (None yet!)
+% }
+
+
 

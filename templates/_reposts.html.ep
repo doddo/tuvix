@@ -1,2 +1,0 @@
-<h4>Reposts</h4>
-%= include _facepile type="repost"
