@@ -12,12 +12,29 @@ use Mojo::Headers;
 use Minion::Backend::SQLite;
 use Mojo::SQLite;
 
+use Mojo::File 'path';
+use Mojo::Home;
+
+
+# Every CPAN module needs a version
+our $VERSION = '1.0';
+
 
 sub startup {
     my $self = shift;
 
     $self->plugin('Config');
     $self->secrets($self->config('secrets'));
+
+    # Switch to installable home directory
+    $self->home(Mojo::Home->new(path(__FILE__)->sibling('Tuvix')));
+
+    # Switch to installable "public" directory
+    $self->static->paths->[0] = $self->home->child('public');
+
+    # Switch to installable "templates" directory
+    # Todo here can be a different when theme support is added.
+    $self->renderer->paths->[0] = $self->home->child('templates');
 
     $self->helper(site_info => sub {Tuvix::Model::SiteInfo->new($self->config('plerd'))});
     $self->helper(site_info_get => sub {

@@ -14,5 +14,4 @@ coerce 'URL'
     => from 'Str'
     => via {Mojo::URL->new($_)};
 
-
 1;
