@@ -86,7 +86,7 @@ sub get_archive {
             $c->render(status => 401, text => "Invalid Year");
             return;
         }
-        unless ($month =~ m/^\d+$/ && ($month >= 1 && $month <= $dt->month)) {
+        unless ($month =~ m/^\d+$/ && $month >= 1 && ( $month <= $dt->month || ($year < $dt->year && $month <= 12))) {
             $c->render(status => 401, text => "Invalid Month");
             return;
         }
