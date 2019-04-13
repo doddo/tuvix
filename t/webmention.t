@@ -11,7 +11,7 @@ use FindBin;
 BEGIN {unshift @INC, ("$FindBin::Bin/lib", "$FindBin::Bin/../lib")}
 
 
-plan tests => 152;
+plan tests => 155;
 
 use_ok('Tuvix::Model::Webmentions');
 

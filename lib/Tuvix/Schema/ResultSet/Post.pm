@@ -53,8 +53,13 @@ sub get_posts_from_month {
                 $dtf->format_datetime($wanted_date_start),
                 $dtf->format_datetime($wanted_date_end)
             ] }
-        });
+        },
+        {
+            order_by => { -desc => qw/date/ },
+        }
+    );
     return $rs;
+
 }
 
 sub get_recent_posts {

@@ -26,16 +26,11 @@ $t->app->helper(posts => sub {
 });
 
 $t->get_ok('/')->status_is(302);
-
-$t->get_ok('/posts')->status_is(200)->content_like(qr/Unit Test Blog Title/i);
-
-$t->get_ok('/posts/2018-10-28-another-day-in-paradise')
-    ->status_is(200)
-    ->content_like(qr/Phil Collins/i);
-
-$t->get_ok('/posts?feed=rss')
-    ->status_is(200)
-    ->content_like(qr/rss version="2.0"/);
-
-
-done_testing();
+$t->get_ok('/posts')->status_is(200);
+$t->get_ok('/posts/archive')
+    ->status_is(200);
+$t->get_ok('/posts/archive'
+    => form => {y => '2019', m => '01'})
+    ->content_like(qr{<a href="/posts/archive\?month=\d+&year=2018">Older posts...</a>}i)
+    ->content_unlike(qr/newer post/i);
+done_testing()
