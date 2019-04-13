@@ -1,7 +1,7 @@
 {
   secrets => ['2eee4862f81c135e1df5a1f67f3a5c3c384aea37'],
 
-  db => ["dbi:SQLite:/home/petter/plerd/db/tuvix.db","",""],
+  db => ["dbi:SQLite:/opt/tuvix/page/db/tuvix.db","",""],
   db_opts => {
     RaiseError     => 1,
     sqlite_unicode => 1,
@@ -11,15 +11,15 @@
 
   plerd => {
     base_uri         => 'http://localhost:8080/',
-    path             => '/home/petter/plerd',
-    title            => 'Petters Homepage',
-    author_name      => 'Petter',
-    author_email     => 'petter_w@petter.re',
-    author_photo     => '/assets/petter.png',
-    source_path      => '/home/petter/plerd/source',
-    publication_path => '/home/petter/plerd/blog',
-    template_path    => '/home/petter/plerd/templates',
-    database_path    => '/home/petter/plerd/db',
+    path             => '/opt/tuvix/page',
+    title            => 'Tuvix Installation',
+    author_name      => 'Foo',
+    author_email     => 'foobar@example.com',
+    #author_photo     => '/assets/petter.png',
+    source_path      => '/opt/tuvix/page/source',
+    publication_path => '/opt/tuvix/lib/Tuvix/public/',
+    template_path    => '/opt/tuvix/lib/Tuvix/templates/',
+    database_path    => '/opt/tuvix/page/db',
     extensions       => ['InstaPlerd::Post'],
     extension_preferences => {
         'InstaPlerd::Post'  => {
