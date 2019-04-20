@@ -21,7 +21,7 @@ sub create_testdb {
     chdir "$FindBin::Bin";
     plugin 'DefaultHelpers';
 
-    my $config_ref = app->config('plerd');
+    my $config_ref = app->config();
 
     my $plerd = Tuvix::ExtendedPlerd->new($config_ref);
     my $ph = Tuvix::PlerdHelper->new(

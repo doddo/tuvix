@@ -9,25 +9,23 @@
 
   time_zone => 'Europe/Stockholm',
 
-  plerd => {
-    base_uri         => 'http://localhost:8080/',
-    path             => '/opt/tuvix/page',
-    title            => 'Tuvix Installation',
-    author_name      => 'Foo',
-    author_email     => 'foobar@example.com',
-    #author_photo     => '/assets/petter.png',
-    source_path      => '/opt/tuvix/page/source',
-    publication_path => '/opt/tuvix/lib/Tuvix/public/',
-    template_path    => '/opt/tuvix/lib/Tuvix/templates/',
-    database_path    => '/opt/tuvix/page/db',
-    extensions       => ['InstaPlerd::Post'],
-    extension_preferences => {
-        'InstaPlerd::Post'  => {
-            width       => 847,
-            height      => 840,
-            compression => 85,
-            filter      => 'InstaPlerd::Filters::Batman',
-      }
+  base_uri         => 'http://localhost:8080/',
+  path             => '/opt/tuvix/page',
+  title            => 'Tuvix Installation',
+  author_name      => 'Foo',
+  author_email     => 'foobar@example.com',
+  #author_photo     => '/assets/petter.png',
+  source_path      => '/opt/tuvix/page/source',
+  publication_path => '/opt/tuvix/lib/Tuvix/public/',
+  template_path    => '/opt/tuvix/lib/Tuvix/templates/',
+  database_path    => '/opt/tuvix/page/db',
+  extensions       => ['InstaPlerd::Post'],
+  extension_preferences => {
+      'InstaPlerd::Post'  => {
+          width       => 847,
+          height      => 840,
+          compression => 85,
+          filter      => 'InstaPlerd::Filters::Batman',
     }
   }
 }

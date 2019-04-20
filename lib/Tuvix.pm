@@ -36,7 +36,7 @@ sub startup {
     # Todo here can be a different when theme support is added.
     $self->renderer->paths->[0] = $self->home->child('templates');
 
-    $self->helper(site_info => sub {Tuvix::Model::SiteInfo->new($self->config('plerd'))});
+    $self->helper(site_info => sub {Tuvix::Model::SiteInfo->new($self->config)});
     $self->helper(site_info_get => sub {
         my $self = shift;
         my $key = shift;
