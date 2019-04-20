@@ -43,7 +43,7 @@ die (sprintf "Unable to locate config file '%s'", $config_file)
 plugin 'Config' => { file => $config_file };
 plugin 'DefaultHelpers';
 
-my $config_ref = app->config('plerd');
+my $config_ref = app->config();
 
 my $plerd = Tuvix::ExtendedPlerd->new($config_ref);
 

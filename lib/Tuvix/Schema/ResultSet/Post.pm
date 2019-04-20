@@ -48,11 +48,13 @@ sub get_posts_from_month {
         ->datetime_parser;
 
     my $rs = $self->search(
-        { 'date' => {
-            -between => [
-                $dtf->format_datetime($wanted_date_start),
-                $dtf->format_datetime($wanted_date_end)
-            ] }
+        {
+            date => {
+                -between => [
+                    $dtf->format_datetime($wanted_date_start),
+                    $dtf->format_datetime($wanted_date_end)
+                ] },
+            type => 'post'
         },
         {
             order_by => { -desc => qw/date/ },
@@ -64,12 +66,12 @@ sub get_posts_from_month {
 
 sub get_recent_posts {
     return shift
-        ->get_posts_from_query(undef, 1, 10);
+        ->get_posts_from_query({ type => 'post' }, 1, 10);
 }
 
 sub get_latest {
     return shift
-        ->get_posts_from_query(undef, 1, 1)
+        ->get_posts_from_query({ type => 'post' }, 1, 1)
         ->next;
 }
 

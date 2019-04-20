@@ -31,6 +31,7 @@ __PACKAGE__->table('posts');
 __PACKAGE__->add_columns(qw/guid title body author_name path source_file/);
 __PACKAGE__->add_columns(date => { data_type => 'DateTime' });
 __PACKAGE__->add_columns(description => { is_nullable => 1 });
+__PACKAGE__->add_columns(type => { default_value => 'post' });
 
 __PACKAGE__->set_primary_key('guid');
 
@@ -50,7 +51,8 @@ sub _build_newer_post {
     my $rs = $schema->resultset('Post')->search(
         {
             date => { '>=' => $self->get_column('date') },
-            guid => { '!=' => $self->get_column('guid') }
+            guid => { '!=' => $self->get_column('guid') },
+            type => 'post'
         },
         {
             order_by => { -asc => qw/date/ },
@@ -66,7 +68,8 @@ sub _build_older_post {
     my $rs = $schema->resultset('Post')->search(
         {
             date => { '<=' => $self->get_column('date') },
-            guid => { '!=' => $self->get_column('guid') }
+            guid => { '!=' => $self->get_column('guid') },
+            type => 'post'
         },
         {
             order_by => { -desc => qw/date/ },
@@ -83,7 +86,6 @@ sub _build_uri {
 sub get_webmentions {
     my $self = shift;
     my $schema = $self->result_source->schema;
-
 
     return $schema->resultset('Webmention')->search(
         {
