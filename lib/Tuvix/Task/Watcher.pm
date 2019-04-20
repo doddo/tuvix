@@ -75,7 +75,7 @@ sub register {
                             }
                             if ($post) {
                                 $plerd_helper->create_or_update_post($post);
-                                # TODO $post->send_webmentions if $self->send_webmentions;
+                                $post->send_webmentions if $self->send_webmentions;
                             }
                             else {
                                 $job->app->log->error(

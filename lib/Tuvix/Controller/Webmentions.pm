@@ -35,7 +35,6 @@ sub process_webmention {
             $c->render(status => 202, text => "👍The webmention has arrived and will be delt with in due time.");
             # TODO check so that the queue ain't too big usw.
             $c->app->minion->enqueue(receive_webmention => [ $json->encode($webmention) ]);
-
         }
         else {
             $c->render(
@@ -43,7 +42,6 @@ sub process_webmention {
                 text   => sprintf("Target post [%s] not found.", $webmention->target->path)
             );
         }
-
     }
     else {
         $c->render(
