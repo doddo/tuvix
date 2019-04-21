@@ -1,6 +1,7 @@
 package Tuvix::ExtendedPlerd;
 use strict;
 use warnings FATAL => 'all';
+use Tuvix::ExtendedPlerd::Post;
 
 use Module::Load;
 use Try::Tiny;
@@ -11,7 +12,7 @@ use base 'Plerd';
 
 has '+posts' => (
     is         => 'ro',
-    isa        => 'ArrayRef[Plerd::Post]',
+    isa        => 'ArrayRef[Tuvix::ExtendedPlerd::Post]',
     lazy_build => 1
 );
 
@@ -45,7 +46,6 @@ sub BUILD {
     }
 }
 
-
 sub _build_posts {
     my $self = shift;
     my @posts;
@@ -53,7 +53,7 @@ sub _build_posts {
 
     foreach my $file (sort {$a->basename cmp $b->basename} $self->source_directory->children) {
         if ($file =~ m/\.(?:markdown|md)$/) {
-            push @posts, Plerd::Post->new(plerd => $self, source_file => $file)
+            push @posts, Tuvix::ExtendedPlerd::Post->new(plerd => $self, source_file => $file)
         }
         else {
             foreach my $trigger (keys %{$triggers}) {

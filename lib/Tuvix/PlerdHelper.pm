@@ -76,6 +76,8 @@ sub create_or_update_post {
     $post->title($plerd_post->title());
     $post->body($plerd_post->body());
     $post->date($plerd_post->date());
+    $post->type($plerd_post->type());
+
     $post->source_file($plerd_post->source_file->basename);
 
     $post->description($plerd_post->description());
