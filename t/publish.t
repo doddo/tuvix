@@ -11,8 +11,7 @@ use FindBin;
 BEGIN {unshift @INC, ("$FindBin::Bin/lib", "$FindBin::Bin/../lib")}
 
 
-plan tests => 30;
-
+plan tests => 31;
 
 use TestData qw\create_testdb\;
 
@@ -20,19 +19,22 @@ my $dbh = create_testdb;
 
 my $posts = $dbh->resultset('Post');
 
+my $found = 0;
+
 while (my $post = $posts->next) {
     ok(defined $post->title);
 
-    if ($post->title eq 'About this blog'){
-        TODO: {
-            local $TODO = "Classify posts based on the 'type' tag found (optionally) in it.";
-            cmp_ok($post->type, 'eq', 'page');
-        }
-    } else {
+    if ($post->title eq 'About this blog') {
+        cmp_ok($post->type, 'eq', 'page');
+        $found = 1;
+    }
+    else {
         cmp_ok($post->type, 'eq', 'post');
     }
 
     isa_ok $post, 'Tuvix::Schema::Result::Post';
 }
+
+cmp_ok($found, '==', 1, "The page post was found");
 
 done_testing()

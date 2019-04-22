@@ -11,7 +11,7 @@ use FindBin;
 BEGIN {unshift @INC, ("$FindBin::Bin/lib", "$FindBin::Bin/../lib")}
 
 
-plan tests => 158;
+plan tests => 151;
 
 use_ok('Tuvix::Model::Webmentions');
 
@@ -66,18 +66,16 @@ $t->post_ok('/webmention' => form => {
 
 $t->post_ok('/webmention' => form => {
     source => 'http://localhost/foo_source',
-    target =>  Mojo::URL->new($posts[-1]->uri)->base($t->app->site_info->base_uri->port($port))->to_abs })
+    target => Mojo::URL->new($posts[-1]->uri)->base($t->app->site_info->base_uri->port($port))->to_abs })
     ->status_is(202)
     ->content_like(qr/The webmention has arrived and will be delt with in due time/);
 
-$t->get_ok(Mojo::URL->new($posts[-1]->uri)->base($t->app->site_info->base_uri->port($port))->to_abs )
+$t->get_ok(Mojo::URL->new($posts[-1]->uri)->base($t->app->site_info->base_uri->port($port))->to_abs)
     ->header_is(Link => sprintf '<%s>; rel="webmention"', $webmention_uri->to_abs);
 
 
 # TODO: Deprecate
 my $webmention_mgr = Tuvix::Model::Webmentions->new(base_uri => $t->app->site_info->base_uri->port($port));
-
-
 
 foreach my $post (@posts) {
     my @wms = $webmention_mgr->get_webmentions_from_post($post);
@@ -155,13 +153,6 @@ foreach my $verified_webmention (@webmentions_to_save) {
         'Create webmention DB model from Web::Mention object');
     ok(defined($webmention_db), 'Successful creation of Webmention DB object.');
 
-    TODO: {
-        local $TODO = "A page may have multiple webmentions in it from same source to same target."
-            . "Figure out what is the proper way to handle such a situation.";
-        cmp_ok($webmention_db->in_storage, '==', 0);
-    }
-
-
     ok($webmention_db->insert_or_update, sprintf "New webmention (type %s) saved in DB", $webmention_db->type);
 
     cmp_ok($webmention_db->in_storage, '==', 1);
@@ -174,10 +165,6 @@ foreach my $verified_webmention (@webmentions_to_save) {
 
 my $wms = $dbh->resultset('Webmention');
 
-TODO: {
-    local $TODO = "Read how the spec says about same webmention source -> target but the kind is different!";
-    cmp_ok($wms->count, '==', @webmentions_to_save);
-}
 cmp_ok($wms->count, '>', 0);
 
 while (my $wm = $wms->next) {
