@@ -68,7 +68,10 @@ sub create_or_update_post {
     $self->log->info(sprintf "Creating or updating post [%s]: %s", $plerd_post->guid, $plerd_post->title);
 
     my $post = $schema->resultset('Post')->find_or_new(
-        { guid => $plerd_post->guid() },
+        {
+            guid        => $plerd_post->guid(),
+            source_file => $plerd_post->source_file->basename()
+        },
     );
 
     $plerd_post->description($plerd_post->stripped_body);
@@ -76,9 +79,12 @@ sub create_or_update_post {
     $post->title($plerd_post->title());
     $post->body($plerd_post->body());
     $post->date($plerd_post->date());
-    $post->type($plerd_post->type());
 
-    $post->source_file($plerd_post->source_file->basename);
+    if ($plerd_post->can('type')){
+        $post->type($plerd_post->type());
+    }
+
+    #$post->source_file($plerd_post->source_file->basename);
 
     $post->description($plerd_post->description());
     $post->author_name($plerd_post->plerd->author_name());

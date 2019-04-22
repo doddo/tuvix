@@ -27,5 +27,7 @@
           compression => 85,
           filter      => 'InstaPlerd::Filters::Batman',
     }
-  }
+  },
+  recieve_webmentions => 0,
+  send_webmentions => 0,
 }

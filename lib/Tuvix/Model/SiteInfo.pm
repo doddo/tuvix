@@ -45,4 +45,10 @@ has 'publication_path' => (
     required => 1
 );
 
+has 'send_webmentions' => (
+    isa     => 'Int',
+    is      => 'rw',
+    default => 0,
+);
+
 1;
