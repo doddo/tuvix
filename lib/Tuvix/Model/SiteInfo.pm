@@ -51,4 +51,34 @@ has 'send_webmentions' => (
     default => 0,
 );
 
+has 'sidebar_section' => (
+    isa        => 'Str',
+    is         => 'ro',
+    lazy_build => 1
+);
+
+has 'footer_section' => (
+    isa        => 'Str',
+    is         => 'ro',
+    lazy_build => 1
+);
+
+
+sub _build_sidebar_section {
+    my $self = shift;
+    return <<EOM
+  <section>
+  <h1>Hello</h1>
+  <p>
+  This is a blog by <a href="mailto:${\($self->author_email)}">${\($self->author_name)}</a>.
+  </section>
+EOM
+}
+
+sub _build_footer_section {
+    return <<EOM
+   <p>Powered by <a href="https://github.com/doddo/tuvix">Tuvix</a> (powered by <a href="http://jmac.org/plerd">Plerd</a>).</p>
+EOM
+}
+
 1;

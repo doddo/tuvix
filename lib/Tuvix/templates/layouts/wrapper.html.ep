@@ -52,12 +52,7 @@
             <%= content  %>
         </div>
         <div class="col-sm-3 sidebar">
-            <section>
-                <h1>Hello</h1>
-                <p>
-                    This is a blog by <a href="mailto:<%==  site_info->author_email %>"><%== site_info->author_name %></a>.
-                </p>
-            </section>
+            <%== site_info->sidebar_section %>
             <section>
                 <h1>Search</h1>
                 <form action="https://duckduckgo.com" method="get">
@@ -78,7 +73,7 @@
     </div>
         <footer style="font-size:small; font-style:italic" class="container">
         <hr />
-        <p>Powered by <a href="https://github.com/doddo/tuvix">Tuvix</a> powered by <a href="http://jmac.org/plerd">Plerd</a>.</p>
+        <%== site_info->footer_section %>
         </footer>
     </div>
 

@@ -27,7 +27,11 @@ $t->app->helper(posts => sub {
 
 $t->get_ok('/')->status_is(302);
 
-$t->get_ok('/posts')->status_is(200)->content_like(qr/Unit Test Blog Title/i);
+$t->get_ok('/posts')
+    ->status_is(200)
+    ->content_like(qr/Unit Test Blog Title/i)
+    ->content_like(qr{This is a blog by <a href="mailto:foo\@bar.re">Foobar</a>})
+    ->content_like(qr{<p>Powered by <a href="https://github.com/doddo/tuvix">Tuvix</a> \(powered by <a href="http://jmac.org/plerd">Plerd</a>\).</p>});
 
 $t->get_ok('/posts/2018-10-28-another-day-in-paradise')
     ->status_is(200)
