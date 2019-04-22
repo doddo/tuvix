@@ -28,16 +28,14 @@ sub register {
         try {
 
             my $filter;
-            $plerd = Tuvix::ExtendedPlerd->new($app->config('plerd'));
+            $plerd = Tuvix::ExtendedPlerd->new($app->config());
             $plerd_helper = Tuvix::PlerdHelper->new(
                 db      => \@{$app->config('db')},
                 db_opts => $app->config('db_opts'),
                 plerd   => $plerd,
                 log     => $job->app->log);
 
-            my $trigger = defined(keys %{$plerd->post_triggers})
-                ? sprintf '\.(md|markdown|%s)$', join('|', keys %{$plerd->post_triggers})
-                : '\.(md|markdown)$';
+            my $trigger = sprintf '\.(%s)$', join('|', keys %{$plerd->post_triggers});
 
             $log->info("Fucking shit filter $trigger ");
             $filter = qr/$trigger/;
@@ -68,14 +66,17 @@ sub register {
                             my $post;
 
                             foreach my $trigger (keys %{$triggers}) {
+
+                                $job->app->log->info("testing if file: $file matched /\.$trigger\$/");
                                 if ($file =~ m/\.$trigger$/i) {
+                                    $job->app->log->info("file: $file matched /\.$trigger\$/");
                                     $post = $$triggers{$trigger}->new(plerd => $plerd, source_file => $file);
                                     last;
                                 }
                             }
                             if ($post) {
                                 $plerd_helper->create_or_update_post($post);
-                                $post->send_webmentions if $self->send_webmentions;
+                                $post->send_webmentions if $job->app->send_webmentions || 0;
                             }
                             else {
                                 $job->app->log->error(

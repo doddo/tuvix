@@ -12,7 +12,7 @@ use base 'Plerd';
 
 has '+posts' => (
     is         => 'ro',
-    isa        => 'ArrayRef[Tuvix::ExtendedPlerd::Post]',
+    isa        => 'ArrayRef[Plerd::Post]',
     lazy_build => 1
 );
 
@@ -52,15 +52,10 @@ sub _build_posts {
     my $triggers = $self->post_triggers;
 
     foreach my $file (sort {$a->basename cmp $b->basename} $self->source_directory->children) {
-        if ($file =~ m/\.(?:markdown|md)$/) {
-            push @posts, Tuvix::ExtendedPlerd::Post->new(plerd => $self, source_file => $file)
-        }
-        else {
-            foreach my $trigger (keys %{$triggers}) {
-                if ($file =~ m/\.$trigger$/i) {
-                    push @posts, $$triggers{$trigger}->new(plerd => $self, source_file => $file);
-                    last;
-                }
+        foreach my $trigger (keys %{$triggers}) {
+            if ($file =~ m/\.$trigger$/i) {
+                push @posts, $$triggers{$trigger}->new(plerd => $self, source_file => $file);
+                last;
             }
         }
     }
@@ -70,6 +65,9 @@ sub _build_posts {
 sub _build_post_triggers {
     my $self = shift;
     my %triggers;
+
+    # "builtin" trigger is here
+    $triggers{ Tuvix::ExtendedPlerd::Post->file_type } = 'Tuvix::ExtendedPlerd::Post';
 
     foreach my $classref (@{$self->extensions // []}) {
         if ($classref->can('file_type')) {

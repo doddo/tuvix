@@ -29,7 +29,8 @@ sub get_posts {
         $format = 'xml'
     }
 
-    my $posts = $c->posts->get_posts_from_query(undef, $page, $posts_per_page);
+    my $posts = $c->posts->get_posts_from_query({ type => 'post' }, $page, $posts_per_page);
+    my $pages = $c->posts->get_posts_from_query({ type => 'page' });
 
     return $c->reply->not_found unless ($posts->count);
 
@@ -37,6 +38,7 @@ sub get_posts {
         page  => $page,
         title => $c->site_info->title,
         posts => $posts,
+        pages => $pages,
         path  => $c->req->url->path
     );
     $c->render(
@@ -55,10 +57,13 @@ sub get_posts_from_path {
 
     return $c->reply->not_found unless ($posts->count);
 
+    my $pages = $c->posts->get_posts_from_query({ type => 'page' });
+
     $c->stash(
         page  => 1,
         title => sprintf("%s - %s ", ($posts->all)[0]->title, $c->site_info->title),
-        posts => $posts
+        posts => $posts,
+        pages => $pages,
     );
     $c->render(
         template => 'post'
@@ -103,11 +108,13 @@ sub get_archive {
     );
 
     my $posts = $rs->get_posts_from_month($wanted_date_start);
+    my $pages = $c->posts->get_posts_from_query({ type => 'page' });
 
     $c->stash(
         wanted => $wanted_date_start,
         title  => 'Archive',
         posts  => $posts,
+        pages  => $pages
     );
     $c->render(
         template => 'archive',

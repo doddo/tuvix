@@ -6,6 +6,10 @@ use Moose;
 
 use base 'Plerd::Post';
 
+sub file_type {
+    '(md|markdown)';
+}
+
 has 'type' => (
     is         => 'rw',
     isa        => 'Str',

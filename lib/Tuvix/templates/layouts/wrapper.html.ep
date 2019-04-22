@@ -38,6 +38,9 @@
                 <ul class="nav navbar-nav">
                     <li><a href="/posts/archive">Archive</a></li>
                     <li><a href="/posts?feed=rss">RSS</a></li>
+                    % while (my $page = $pages->next) {
+                    <li><a href="<%= $page->path %>"></a><%= $page->title %></li>
+                    %}
                 </ul>
             </div><!--/.navbar-collapse -->
         </div>
