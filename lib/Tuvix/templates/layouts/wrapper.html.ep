@@ -39,7 +39,7 @@
                     <li><a href="/posts/archive">Archive</a></li>
                     <li><a href="/posts?feed=rss">RSS</a></li>
                     % while (my $page = $pages->next) {
-                    <li><a href="<%= $page->path %>"></a><%= $page->title %></li>
+                    <li><a href="<%= $page->path %>"><%= $page->title %></a></li>
                     %}
                 </ul>
             </div><!--/.navbar-collapse -->
