@@ -47,7 +47,7 @@ sub startup {
     });
 
     $self->helper(schema => sub {
-        state $schema = Tuvix::Schema->connect($self->config('db'), self->config('db_opts'))
+        state $schema = Tuvix::Schema->connect(@{$self->config('db')}, $self->config('db_opts'))
     });
 
     $self->helper(recent_posts => sub {shift->posts->get_recent_posts()});

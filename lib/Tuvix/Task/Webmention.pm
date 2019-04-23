@@ -53,8 +53,8 @@ sub register {
         };
 
         if ($webmention->is_verified) {
-            $job->app->log->debug(sorintf('Webmention of type "%s" from: [%s] to [%s] is verifed.',
-                $webmention->source, $webmention->target));
+            $job->app->log->debug(sprintf('Webmention of type "%s" from: [%s] to [%s] is verifed.',
+                $webmention->type, $webmention->source, $webmention->target));
 
             if (my $wm = $job->app->schema->resultset('Webmention')->from_webmention($webmention)) {
                 if (!$wm->in_storage || !$wm->is_changed) {
@@ -62,8 +62,8 @@ sub register {
                         # TODO: add shitlist filter here
                         $wm->insert_or_update();
 
-                        my $msg = sorintf('Webmention of type "%s" from: [%s] to [%s] is successfully added.',
-                            $webmention->source, $webmention->target);
+                        my $msg = sprintf('Webmention of type "%s" from: [%s] to [%s] is successfully added.',
+                            $webmention->type, $webmention->source, $webmention->target);
                         $job->app->log->info($msg);
                         $job->finish($msg);
                     }
