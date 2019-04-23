@@ -16,9 +16,24 @@ make test
 # make install
 ```
 
+
 ## How it works
 
-It works much the same as Plerd does, but instead of rendering the Plerd::Posts into a html webpage, it stores it in a Database. Likely it will work with any database which can be managed by [DBIx::Class](https://metacpan.org/pod/DBIx::Class) (but that might require extra modules), but Sqlite is the "supported" one (insofar as any such thing as support can be talked about in this context) which fits the philosophy of Plerd nicely because you can store all the stuff in dropbox and so forth.
+It works much the same as [Plerd](https://github.com/jmacdotorg/plerd) does: a designated "source" directory is listened to for changes, so that if a new file is dropped in there, if it's of appropriate type (a markdown file (but can be extended to support any source format)), then it will be published into a blog post immediatly (or periodically if run from a cron job)
+
+A difference though from Plerd, is that instead of rendering the Plerd::Posts into a static html document, it stores it in a Database. Likely it will work with any database which can be managed by [DBIx::Class](https://metacpan.org/pod/DBIx::Class) (but that might require extra modules), but Sqlite is the "supported" one (insofar as any such thing as support can be talked about in this context).
+
+This means that you can have the sqlite3.db file hosted near the source file in a directory mounted from dropbox for example.
+
+
+## Project status
+
+It works, as you can see on my [personal photo blog](https://petter.re) which uses vanilla Tuvix plus an extension called [InstaPlerd](https://github.com/doddo/instaplerd) to create the pictures.
+
+However it is not stable yet, and still under heavy development. GA and initial release version is planned for Q4 2019.
+
+
+
 
 ## More extensive documentation
 
@@ -43,18 +58,27 @@ Starting hot deployment for Hypnotoad server 32023.
 
 ### Start the job queue
 
-Webmentions (not 100% implemented) as well as the directory watcher  and other such slow processes are handled with the the [Minion](https://mojolicious.org/perldoc/Minion) Job queue system.
+Webmention support, as well as the directory watcher and other such slow processes are handled with the the [Minion](https://mojolicious.org/perldoc/Minion) Job queue system.
 
 ```
 script/tuvix minion worker
 ```
 
-The directory watcher, which watches a specidied (in the config) directory for changes and publishes source files can be started by enqueuing to the job queue:
+The directory watcher, which watches a specified (in the config) directory for changes and publishes source files can be started by enqueuing to the job queue:
 
 ```bash
 script/tuvix minion job --enqueue watch_directory
 1
 ```
+
+It will create a lock, so to recover from a crash, the lock must be lifted before a new process can stat listening to the directory for changes:
+
+This can be  done with the following command.
+```bash
+ script/tuvix minion job -U watch_dir_lock
+ ```
+
+This implementation is a bit sub-optimal at this point but is a work in progress.
 
 
 # LICENSE
