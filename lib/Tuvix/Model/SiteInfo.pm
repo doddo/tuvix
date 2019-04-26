@@ -63,6 +63,12 @@ has 'footer_section' => (
     lazy_build => 1
 );
 
+has 'author_bio' => (
+    isa        => 'Str',
+    is         => 'ro',
+    default => sub { "" }
+);
+
 
 sub _build_sidebar_section {
     my $self = shift;
