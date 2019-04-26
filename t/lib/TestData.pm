@@ -31,14 +31,7 @@ sub create_testdb {
     );
 
     $ph->deploy_schema(1);
-
-    my $posts = $ph->publish_all;
-
-    while (my $post = $posts->next) {
-        ok(defined $post->title);
-
-        isa_ok $post, 'Tuvix::Schema::Result::Post';
-    }
+    $ph->publish_all;
 
     return $ph->schema()->clone();
 }

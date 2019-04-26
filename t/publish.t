@@ -11,7 +11,7 @@ use FindBin;
 BEGIN {unshift @INC, ("$FindBin::Bin/lib", "$FindBin::Bin/../lib")}
 
 
-plan tests => 31;
+plan tests => 19;
 
 use TestData qw\create_testdb\;
 

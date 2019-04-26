@@ -12,46 +12,17 @@ use FindBin;
 
 BEGIN {unshift @INC, ("$FindBin::Bin/lib", "$FindBin::Bin/../lib")}
 
-#plan tests => 10;
-
+plan tests => 50;
 
 use_ok('Tuvix::Model::Webmentions');
 
-use TestData qw\create_testdb\;
+use TestApp qw\create_testapp\;
 
-my $dbh = create_testdb;
-
-my $config = app->config;
-
-my $t = Test::Mojo->new('Tuvix', $config);
-
-$t->ua->connect_timeout(1);
-$t->ua->request_timeout(1);
-
-$t->app->helper(posts => sub {
-    Tuvix::Model::Posts->new(schema => $dbh)
-});
-
-$t->app->helper(schema => sub {
-    return $dbh;
-});
+my $t = create_testapp;
 
 # To get the webmention to say the full correct address
 my $port = $t->get_ok('/')->tx->remote_port;
 
-$t->app->helper(webmention_url => sub {
-    Mojo::URL
-        ->new('/webmention')
-        ->base(Mojo::URL->new($t->app->site_info->base_uri->port($port)));
-});
-
-$t->app->helper(base_url => sub {
-    Mojo::URL
-        ->new()
-        ->base($t->app->site_info->base_uri->port($port));
-});
-
-$t->app->helper(ua => sub {$t->ua});
 
 my $webmention_mgr = Tuvix::Model::Webmentions->new(base_uri => $t->app->site_info->base_uri->port($port));
 
