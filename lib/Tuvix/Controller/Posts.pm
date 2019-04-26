@@ -125,7 +125,7 @@ sub load_next {
     my $c = shift;
     $c->on(message => sub {
         my ($self, $page) = @_;
-        for my $post ($self->posts->get_posts_from_query(undef, $page)->all) {
+        for my $post ($self->posts->get_posts_from_query({ type => 'post' }, $page)->all) {
             $self->stash(post => $post);
             $self->send($self->render_to_string(template => '_post'));
         };

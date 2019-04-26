@@ -1,21 +1,31 @@
 % layout 'wrapper';
 
 % if ($posts->count > 1) {
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script type="text/javascript">
-   $(document).ready(function() {
-        var win = $(window);
-        var i = 1;
-        win.scroll(function() {
-            // End of the document reached?
-            if ($(document).height() - win.height() == win.scrollTop()) {
-                 var ws = new WebSocket('<%= websocket_url %>');
+<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
 
-                // $('#loading').show();
-                  ws.onmessage = function (event) { $( "#posts" ).append(event.data) };
-                  ws.onopen    = function (event) { ws.send(++i) };
-            }
-        });
+<script type="text/javascript">
+    var i = 1;
+    $(document).on("scrollstop", function (e) {
+        console.log("asdasd...");
+        var eof = false;
+        var win = $(window);
+
+        if (!eof && $(document).height() - win.height() == win.scrollTop()) {
+            var ws = new WebSocket('<%= websocket_url %>');
+
+             // $('#loading').show();
+            ws.onmessage = function (event) {
+                if (event.data) {
+                    $( "#posts" ).append(event.data);
+                } else {
+                    eof = true;
+                }
+
+                // $.mobile.loading("hide");
+            };
+            ws.onopen = function (event) { ws.send(++i) };
+        }
     });
 </script>
 %}
