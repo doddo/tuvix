@@ -61,7 +61,6 @@ sub get_posts_from_month {
         }
     );
     return $rs;
-
 }
 
 sub get_recent_posts {

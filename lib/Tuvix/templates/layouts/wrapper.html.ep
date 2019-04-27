@@ -56,9 +56,8 @@
             <%== site_info->sidebar_section %>
             <section>
                 <h1>Search</h1>
-                <form action="https://duckduckgo.com" method="get">
+                <form action="/posts/search" method="post">
                 <input name="q" type="text" placeholder="Search this blog" />
-                <input name="sites" type="hidden" value="<%== site_info->base_uri %>" />
                 <input type="submit" value="Go" />
                 </form>
             </section>

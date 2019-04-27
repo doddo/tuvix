@@ -91,7 +91,7 @@ sub get_archive {
             $c->render(status => 401, text => "Invalid Year");
             return;
         }
-        unless ($month =~ m/^\d+$/ && $month >= 1 && ( $month <= $dt->month || ($year < $dt->year && $month <= 12))) {
+        unless ($month =~ m/^\d+$/ && $month >= 1 && ($month <= $dt->month || ($year < $dt->year && $month <= 12))) {
             $c->render(status => 401, text => "Invalid Month");
             return;
         }
@@ -118,6 +118,46 @@ sub get_archive {
     );
     $c->render(
         template => 'archive',
+    )
+}
+
+
+sub search {
+    my $c = shift;
+
+    my $pages = $c->posts->get_posts_from_query({ type => 'page' });
+    my $query = $c->param('q');
+    my $posts;
+
+    if ($query) {
+        my $self = shift;
+        chomp($query);
+        $posts = $c->posts->resultset->search({
+            -or => [
+                description => { -like => "%${query}%" },
+                title       => { -like => "%${query}%" },
+            ]
+        },
+            {
+                order_by => { -desc => qw/date/ },
+            });
+
+        $c->res->code(
+            $posts->count ? 200 : 404
+        );
+    } else {
+        # 400 if the search param is missing
+        $c->res->code(400);
+    }
+
+    $c->stash(
+        title => 'Search',
+        posts => $posts,
+        pages => $pages,
+        query => $query,
+    );
+    $c->render(
+        template => 'search',
     )
 }
 
