@@ -33,10 +33,10 @@ has 'author_name' => (
 );
 
 has 'author_photo' => (
-    isa      => 'URL',
-    is       => 'rw',
-    required => 0,
-    default  => sub {Mojo::URL->new('/assets/generic_face.png')}
+    isa        => 'URL',
+    is         => 'rw',
+    required   => 0,
+    coerce     => 1
 );
 
 has 'publication_path' => (
@@ -64,10 +64,26 @@ has 'footer_section' => (
 );
 
 has 'author_bio' => (
-    isa        => 'Str',
-    is         => 'ro',
-    default => sub { "" }
+    isa     => 'Str',
+    is      => 'ro',
+    default => sub {""}
 );
+
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $class = shift;
+    my $args = shift;
+    my %args = %{$args};
+
+    my $author_photo = Mojo::URL->new($args{'author_photo'} // '/assets/generic_face.png');
+
+    $args{ author_photo } = $author_photo->is_abs
+        ? $author_photo
+        : Mojo::URL->new($args{'base_uri'})->path($author_photo);
+
+    my @args = %args;
+    return $class->$orig(@args);
+};
 
 
 sub _build_sidebar_section {

@@ -40,13 +40,10 @@ cmp_ok $email_dom->attr('rel'),
     'eq', 'me', "u-email rel in there is me";
 
 cmp_ok my $author_photo = $hcards->find("data.u-photo")->first->val,
-    'eq', $t->app->site_info->author_photo, "u-photo in there and looks OK";
+    'eq', $t->app->site_info->author_photo->to_abs, "u-photo in there and looks OK";
 
 
-TODO: {
-    local $TODO = "Fix so that photo links 1. work, 2. are absolute";
-    ok( Mojo::URL->new($author_photo)->is_abs , "Author photo should be absolute");
-}
+ok( Mojo::URL->new($author_photo)->is_abs , "Author photo should be absolute");
 
 cmp_ok $hcards->find("p.p-note")->first->text,
     'eq', $t->app->site_info->author_bio, "p-note in there and looks OK";
