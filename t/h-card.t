@@ -31,13 +31,6 @@ cmp_ok $url_dom->val,
 cmp_ok $url_dom->attr('rel'),
     'eq', 'me', "u-url rel in there is me";
 
-ok (my $email_dom = $hcards->find("a.u-email")->first, "e-mail in there");
-
-cmp_ok $email_dom->attr('href'),
-    'eq', $t->app->site_info->author_email, "u-email in there looks OK";
-
-cmp_ok $email_dom->attr('rel'),
-    'eq', 'me', "u-email rel in there is me";
 
 cmp_ok my $author_photo = $hcards->find("data.u-photo")->first->val,
     'eq', $t->app->site_info->author_photo->to_abs, "u-photo in there and looks OK";

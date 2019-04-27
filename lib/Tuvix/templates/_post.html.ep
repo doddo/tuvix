@@ -9,7 +9,6 @@
         <data class="p-author h-card">
             <data class="p-name" value="<%= $post->author_name %>"></data>
             <data class="u-url" <%== $rel %> value="<%= base_url->to_abs %>"></data>
-            <a class="u-email" <%== $rel %> href="<%= site_info->author_email %>"></a>
             <p class="p-note"><%= site_info->author_bio %></p>
             <data class="u-photo" value="<%= site_info->author_photo->to_abs %>"></data>
         </data>
