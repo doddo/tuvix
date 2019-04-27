@@ -33,4 +33,10 @@ $t->post_ok('/posts/search', form => {  q => "yer"})
     ->content_like(qr{new year 2019});
 
 
+$t->post_ok('/posts/search', form => {  q => "💩"})
+    ->status_is(200)
+    ->content_like(qr{Found 1 posts})
+    ->content_like(qr{Food for thought.});
+
+
 done_testing();
