@@ -21,8 +21,9 @@
 %}
 
 <div id="posts">
+% my $first_time = 0;
 % for my $post ($posts->page($page)->all) {
-% $self->stash(post => $post);
+% $self->stash(post => $post, first_time => ++$first_time == 1);
 %= include '_post'
 %}
 </div>

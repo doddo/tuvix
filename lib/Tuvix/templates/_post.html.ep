@@ -1,3 +1,4 @@
+% my $rel = $first_time ? 'rel="me"' : '';
     <div class="post h-entry">
         <div class="title page-header">
             <h1>
@@ -7,8 +8,8 @@
         <data class="dt-published" value="<%= $post->title  %> <%= $post->date->hms %>"></data>
         <data class="p-author h-card">
             <data class="p-name" value="<%= $post->author_name %>"></data>
-            <data class="u-url u-uid" rel="me" value="<%= base_url->to_abs %>"></data>
-            <a rel="me" class="u-email" href="<%= site_info->author_email %>"></a>
+            <data class="u-url" <%== $rel %> value="<%= base_url->to_abs %>"></data>
+            <a class="u-email" <%== $rel %> href="<%= site_info->author_email %>"></a>
             <p class="p-note"><%= site_info->author_bio %></p>
             <data class="u-photo" value="<%= site_info->author_photo->to_abs %>"></data>
         </data>
