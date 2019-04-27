@@ -6,7 +6,7 @@
                 <a href="<%= $post->uri %>"><span class="p-name"><%= $post->title %></span><br /><small><%= $post->date->ymd %></small></a>
             </h1>
         </div>
-        <data class="dt-published" value="<%= $post->title  %> <%= $post->date->hms %>"></data>
+        <data class="dt-published" value="<%= $post->date->iso8601().'Z' %>"></data>
         <data class="p-author h-card">
             <data class="p-name" value="<%= $post->author_name %>"></data>
             <data class="u-url<%= $uid %>" <%== $rel %> value="<%= base_url->to_abs %>"></data>
