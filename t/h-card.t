@@ -23,7 +23,7 @@ ok (my $hcards = $t->tx->res->dom->at('data.p-author.h-card'),
 cmp_ok $hcards->find("data.p-name")->first->val,
     'eq', $t->app->site_info->author_name, "p-name name in there looks OK";
 
-ok (my $url_dom = $hcards->find("data.u-url")->first, "u-url in there");
+ok (my $url_dom = $hcards->find("data.u-url,u-uid")->first, "u-url in there");
 
 cmp_ok $url_dom->val,
     'eq', $t->app->base_url->to_abs, "u-url in there looks OK";
@@ -33,7 +33,7 @@ cmp_ok $url_dom->attr('rel'),
 
 ok (my $email_dom = $hcards->find("a.u-email")->first, "e-mail in there");
 
-cmp_ok $email_dom->text,
+cmp_ok $email_dom->attr('href'),
     'eq', $t->app->site_info->author_email, "u-email in there looks OK";
 
 cmp_ok $email_dom->attr('rel'),
