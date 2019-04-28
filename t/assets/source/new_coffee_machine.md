@@ -1,4 +1,5 @@
 title: New coffee machine
+tags: coffee machine, coffee
 time: 2000-01-01T00:00:00-05:00
 published_filename: 2000-01-01-new-coffee-machine.html
 guid: 9B332458-062D-11E9-A44F-FFEE3F391ACD

@@ -29,8 +29,11 @@ sub get_posts {
         $format = 'xml'
     }
 
-    my $posts = $c->posts->get_posts_from_query({ type => 'post' }, $page, $posts_per_page);
-    my $pages = $c->posts->get_posts_from_query({ type => 'page' });
+    my $posts = defined $c->param('tag')
+        ? $c->posts->resultset->get_posts_from_tag($c->param('tag'), $page, $posts_per_page)
+        : $c->posts->resultset->get_posts_from_query({ type => 'post' }, $page, $posts_per_page);
+
+    my $pages = $c->posts->resultset->get_posts_from_query({ type => 'page' });
 
     return $c->reply->not_found unless ($posts->count);
 
