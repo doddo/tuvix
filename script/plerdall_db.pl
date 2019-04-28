@@ -61,9 +61,8 @@ while (my $post = $posts->next) {
     printf "%-50.48s %s\n", $post->title(), $post->path();
 }
 
-# TODO
 if ($send_webmentions){
-    #$_->process_webmentions() for @{$plerd{posts};
+   $_->send_webmentions() for @{$plerd->posts()};
 }
 
 1;
@@ -108,7 +107,7 @@ Wether to drop the db tables before deploying the schema or not. Only usable whe
 
 =item B<--send-webmentions>
 
-If a published post contains webmentions, this param specifies whether plerd should attempt to send them out or not
+If a published post contains webmentions, this param specifies whether they should be attempted to be sent or not
 
 =back
 
