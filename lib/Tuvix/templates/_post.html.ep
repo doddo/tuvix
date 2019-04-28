@@ -18,4 +18,13 @@
         <div class="body e-content">
             <%== $post->body %>
         </div>
+        % my $tags = $post->get_tags();
+        % if ($tags->count){
+            <ul class="list-inline tag-list">
+                <li class="list-inline-item">Tags:</li>
+                % while (my $tag = $tags->next){
+                    <li class="list-inline-item p-category"><a href="/posts/?tag=<%=  $tag->url_escaped %>"><%= $tag->tag %></a></li>
+                %}
+            </ul>
+        % }
     </div>

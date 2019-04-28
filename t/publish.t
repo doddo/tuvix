@@ -11,7 +11,7 @@ use FindBin;
 BEGIN {unshift @INC, ("$FindBin::Bin/lib", "$FindBin::Bin/../lib")}
 
 
-plan tests => 23;
+plan tests => 24;
 
 use TestData qw\create_testdb\;
 
@@ -27,8 +27,6 @@ my $post_with_tags;
 
 my $found = 0;
 
-my @tags;
-
 while (my $post = $posts->next) {
     ok(defined $post->title);
 
@@ -40,28 +38,26 @@ while (my $post = $posts->next) {
         cmp_ok($post->type, 'eq', 'post');
     }
 
-    if ($post->tags) {
-        push @tags, $post->tags;
-    }
-
     if ($post->guid eq '9B332458-062D-11E9-A44F-FFEE3F391ACD') {
         $post_with_tags = $post;
+    }
+    elsif ($post->guid eq '9B3386F0-062D-11E9-A44F-FFEE3F391ACD') {
+        cmp_ok($post->get_tags()->next->tag, 'eq', 'hardships',
+            'post can get tag with get_tags')
     }
 
     isa_ok $post, 'Tuvix::Schema::Result::Post';
 }
 
-
 ok($post_with_tags, 'found post with tags');
 
-ok(my $tags_from_post_with_tags = $dbh->resultset('Tags')->search({ guid => $guid_for_post_with_tags}));
+ok(my $tags_from_post_with_tags = $dbh->resultset('Tags')->search({ guid => $guid_for_post_with_tags }));
 
 cmp_ok($tags_from_post_with_tags->count, '==', 2, "Tags from post contains excactly two tags");
 
-my @found_tags = sort {$a cmp $b } map {$_->tag } $tags_from_post_with_tags->all;
+my @found_tags = sort {$a cmp $b} map {$_->tag} $tags_from_post_with_tags->all;
 
 is_deeply(\@found_tags, \@expected_tags, "the right tags are in there");
-
 
 cmp_ok($found, '==', 1, "The page post was found");
 

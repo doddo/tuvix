@@ -22,6 +22,28 @@ sub get_posts_from_query {
     return $rs;
 }
 
+sub get_posts_from_tag {
+    my $self = shift;
+    my $tag = shift;
+    my $page = shift || 1;
+    my $limit = shift || 10;
+
+    my $rs = $self->search(
+        {
+            'tags.tag' => $tag,
+            'me.type' => 'post'
+        },
+        {
+            join    => 'tags',
+            order_by => { -desc => qw/me.date/ },
+            page     => $page,
+            limit    => $limit
+        }
+    );
+    return $rs;
+}
+
+
 sub get_post_from_uri {
     my $self = shift;
     my $path = shift;

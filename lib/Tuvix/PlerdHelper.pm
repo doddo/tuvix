@@ -9,7 +9,7 @@ use Moose;
 use Mojo::Log;
 use Mojo::URL;
 use Mojo::Unicode::UTF8;
-use Mojo::Util qw(slugify);
+use Mojo::Util qw(slugify url_escape);
 
 use Try::Tiny;
 use Tuvix::Schema;
@@ -80,7 +80,7 @@ sub create_or_update_post {
     $post->body($plerd_post->body());
     $post->date($plerd_post->date());
 
-    if ($plerd_post->can('type')){
+    if ($plerd_post->can('type')) {
         $post->type($plerd_post->type());
     }
 
@@ -99,8 +99,9 @@ sub create_or_update_post {
         foreach (@{$plerd_post->tags()}) {
             $schema->resultset('Tags')->new(
                 {
-                    guid => $plerd_post->guid(),
-                    tag  => $_
+                    guid        => $plerd_post->guid(),
+                    tag         => $_,
+                    url_escaped => url_escape $_
                 }
             )->insert;
         }
