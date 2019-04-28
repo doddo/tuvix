@@ -76,7 +76,12 @@ sub register {
                             }
                             if ($post) {
                                 $plerd_helper->create_or_update_post($post);
-                                $post->send_webmentions if $job->app->site_info->send_webmentions;
+                                if ($job->app->site_info->send_webmentions){
+                                    my $report = $post->send_webmentions;
+
+                                    $job->app->log->info(sprintf "Webmentions attempts:%s delivered:%s sent:%s ",
+                                        $$report{attempts} // -1, $$report{delivered} // -1, $$report{sent} // -1);
+                                }
                             }
                             else {
                                 $job->app->log->error(
