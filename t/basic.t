@@ -29,5 +29,4 @@ $t->get_ok('/posts?feed=rss')
     ->status_is(200)
     ->content_like(qr/rss version="2.0"/);
 
-
 done_testing();

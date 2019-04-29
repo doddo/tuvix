@@ -1,12 +1,17 @@
 package Tuvix::ExtendedPlerd::Post;
 use strict;
 use warnings FATAL => 'all';
+no warnings 'redefine';
 
 use Moose;
-
 use Web::Mention::Mojo;
+use Text::MultiMarkdown;
 
 use base 'Plerd::Post';
+
+
+# ¯\_(ツ)_/¯
+*Plerd::Post::markdown = *Text::MultiMarkdown::markdown;
 
 sub file_type {
     '(md|markdown)';
@@ -23,25 +28,25 @@ sub send_webmentions {
 
     my @wms = Web::Mention::Mojo->new_from_html(
         source => $self->uri->as_string,
-        html => $self->body,
+        html   => $self->body,
     );
 
     my %report = (
-        attempts => 0,
+        attempts  => 0,
         delivered => 0,
-        sent => 0,
+        sent      => 0,
     );
-    foreach ( @wms ) {
+    foreach (@wms) {
         $report{attempts}++;
-        if ( $_->send ) {
+        if ($_->send) {
             $report{delivered}++;
         }
-        if ( $_->endpoint ) {
+        if ($_->endpoint) {
             $report{sent}++;
         }
     }
 
-    return (\%report);
+    return(\%report);
 }
 
 
@@ -70,6 +75,9 @@ Also, for sending of webmentions, it's using the L<Web::Mention::Mojo> subclass 
 which uses L<Mojo::UserAgent> in stead of L<LWP::UserAgent>. This is better because it's a Mojolicious app, and
 the tests can be conducted easier with that, and it allows sending webmentions to the loopback address, which also
 is a great help when testing the stuff.
+
+Furthermore, it uses L<Text::MultiMarkdown> instead of L<Text::Markdown>, so now it can render some tables
+
 
 ¯\_(⊙_ʖ⊙)_/¯
 

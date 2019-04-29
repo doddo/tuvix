@@ -11,6 +11,7 @@ requires 'Mojolicious::Commands';
 requires 'Minion::Backend::SQLite'; # TBD
 
 requires 'Moose';
-requires 'Plerd';
+requires 'Plerd', '1.802';
+requires 'Text::MultiMarkdown', '1.000035';
 requires 'SQL::Translator';
 requires 'File::ChangeNotify';
