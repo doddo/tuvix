@@ -58,6 +58,4 @@ sub create_testapp {
     return $t;
 }
 
-
-
 1;

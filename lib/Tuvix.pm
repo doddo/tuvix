@@ -65,7 +65,7 @@ sub startup {
         return Mojo::URL
             ->new('/more_posts')
             ->host_port($self->site_info->base_uri->host_port)
-            ->scheme(($self->config('ssl_on') // 1) ? 'wss' : 'ws')
+            ->scheme($self->site_info->base_uri->scheme eq 'https' ? 'wss' : 'ws')
     });
 
     # For the minions
@@ -73,6 +73,8 @@ sub startup {
     $self->helper(sqlite => sub {
         state $sqlite = Mojo::SQLite->new(substr(@{$self->config('db')}[0], 4))});
 
+
+    # Expose publication path to the web.
     push @{$self->static->paths}, $self->site_info->publication_path;
 
 
