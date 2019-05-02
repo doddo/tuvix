@@ -23,7 +23,6 @@ my $t = create_testapp;
 # To get the webmention to say the full correct address
 my $port = $t->get_ok('/')->tx->remote_port;
 
-
 my $webmention_mgr = Tuvix::Model::Webmentions->new(base_uri => $t->app->site_info->base_uri->port($port));
 
 #my $posts = $dbh->resultset('Post');

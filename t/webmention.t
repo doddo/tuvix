@@ -23,7 +23,6 @@ my $dbh = $t->app->schema;
 # To get the webmention to say the full correct address
 my $port = $t->get_ok('/')->tx->remote_port;
 
-
 my $webmention_uri = Mojo::URL
     ->new('/webmention')
     ->base(Mojo::URL->new($t->app->site_info->base_uri->port($port)));
