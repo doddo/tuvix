@@ -11,6 +11,26 @@ use Mojo::Log;
 use Mojo::Unicode::UTF8;
 use Mojo::Util qw(slugify);
 
+my $run = 1;
+
+$SIG{TERM} = \&signal_handler;
+$SIG{INT} =  \&signal_handler;
+$SIG{USR1} =  \&signal_handler;
+$SIG{USR2} =  \&signal_handler;
+
+sub signal_handler {
+    my $self = shift;
+
+    my $log = Mojo::Log->new;
+    $run = 0;
+
+    $log->info("Fucking shit signal $! for $$ ");
+
+    if ($! eq 'TERM'){
+        exit 1;
+    };
+}
+
 
 sub register {
     my ($self, $app) = @_;
@@ -46,14 +66,15 @@ sub register {
             );
         }
         catch {
-            $log->error("Watcher couldn't start Plerd and/or PlerdHelper: $_");
-            $job->fail("Watcher couldn't start Plerd and/or PlerdHelper: $_");
+            $log->error("Watcher couldn't start Tuvix::ExtendedPlerd and/or PlerdHelper: $_");
+            $job->fail("Watcher couldn't start Tuvix::ExtendedPlerd and/or PlerdHelper: $_");
         };
 
         my $triggers = $plerd->post_triggers;
         $job->app->log->info("Started watching " . $plerd->source_directory);
-        while (my @events = $watcher->wait_for_events) {
-            if (@events) {
+        while($run) {
+            sleep 1;
+            if (my @events = $watcher->new_events) {
                 my $event;
                 try {
                     foreach (@events) {
@@ -101,10 +122,14 @@ sub register {
                         ? sprintf "Unable to %s %s: %s", $event->type, $event->path, $reason
                         : "Unexpected error encountered: $reason");
                 }
-            };
+            }
         };
-        # Should not exit event loop.. better retry
-        #return $job->retry({ delay => 30 });
+
+        $log->info("Stopped watching " . $plerd->source_directory);
+
+        return $run
+            ? $job->retry({ delay => 2 })
+            : $job->finish('Job has exited.');
     });
 }
 
