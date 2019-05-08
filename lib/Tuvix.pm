@@ -102,12 +102,20 @@ sub startup {
 
     #
     # Share the database connection cache
-    $self->plugin('Mojolicious::Plugin::Minion', { SQLite => $self->sqlite });
+    $self->plugin('Mojolicious::Plugin::Minion::Workers', { SQLite => $self->sqlite });
+
 
     # The Tasks
     $self->plugin('Tuvix::Task::Watcher');
     $self->plugin('Tuvix::Task::Webmention');
 
+    # start the tasks
+
+    $self->minion->enqueue(watch_directory => [ $$ ]);
+
+    $self->minion->workers->manage(6);
+
 }
+
 
 1;

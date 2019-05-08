@@ -7,6 +7,7 @@ requires 'DBD::SQLite', '1.60';
 requires 'Mojolicious', '8.07';
 requires 'Mojo::Unicode::UTF8', '0.002';
 requires 'Mojolicious::Commands';
+requires 'Mojolicious::Plugin::Minion::Workers';
 
 requires 'Minion::Backend::SQLite'; # TBD
 
