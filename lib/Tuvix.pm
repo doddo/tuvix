@@ -111,10 +111,15 @@ sub startup {
 
     # start the tasks
 
-    $self->minion->enqueue(watch_directory => [ $$ ]);
+    if ($self->config('minion_workers') // 0) {
+        $self->log->info("enqueuing directory worker job.");
+        $self->minion->enqueue(watch_directory => [ $$ ]);
 
-    $self->minion->workers->manage(6);
-
+        $self->log->info(sprintf "Starting %i minion workers.", $self->config('minion_workers') );
+        $self->minion->workers->manage($self->config('minion_workers'));
+    } else {
+        $self->log->info("starting without workers.");
+    }
 }
 
 
