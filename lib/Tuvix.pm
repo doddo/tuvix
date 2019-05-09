@@ -102,12 +102,25 @@ sub startup {
 
     #
     # Share the database connection cache
-    $self->plugin('Mojolicious::Plugin::Minion', { SQLite => $self->sqlite });
+    $self->plugin('Mojolicious::Plugin::Minion::Workers', { SQLite => $self->sqlite });
+
 
     # The Tasks
     $self->plugin('Tuvix::Task::Watcher');
     $self->plugin('Tuvix::Task::Webmention');
 
+    # start the tasks
+
+    if ($self->config('minion_workers') // 0) {
+        $self->log->info("enqueuing directory worker job.");
+        $self->minion->enqueue(watch_directory => [ $$ ]);
+
+        $self->log->info(sprintf "Starting %i minion workers.", $self->config('minion_workers') );
+        $self->minion->workers->manage($self->config('minion_workers'));
+    } else {
+        $self->log->info("starting without workers.");
+    }
 }
+
 
 1;

@@ -11,39 +11,16 @@ use Mojo::Log;
 use Mojo::Unicode::UTF8;
 use Mojo::Util qw(slugify);
 
-my $run = 1;
-
-$SIG{TERM} = \&signal_handler;
-$SIG{INT} =  \&signal_handler;
-$SIG{USR1} =  \&signal_handler;
-$SIG{USR2} =  \&signal_handler;
-
-sub signal_handler {
-    my $self = shift;
-
-    my $log = Mojo::Log->new;
-    $run = 0;
-
-    $log->info("Fucking shit signal $! for $$ ");
-
-    if ($! eq 'TERM'){
-        exit 1;
-    };
-}
-
 
 sub register {
     my ($self, $app) = @_;
-    my $log = Mojo::Log->new;
     
     $app->minion->add_task(watch_directory => sub {
         my $job = shift;
         my $watcher;
         my $plerd;
         my $plerd_helper;
-
-        return $job->finish('Previous job is still active') unless
-            my $guard = $app->minion->guard('watch_dir_lock', 7200);
+        my $log = $job->app->log;
 
         try {
 
@@ -71,15 +48,15 @@ sub register {
         };
 
         my $triggers = $plerd->post_triggers;
-        $job->app->log->info("Started watching " . $plerd->source_directory);
-        while($run) {
-            sleep 1;
+        $log->info("Started watching " . $plerd->source_directory);
+        while(sleep 1) {
             if (my @events = $watcher->new_events) {
                 my $event;
                 try {
                     foreach (@events) {
                         $event = $_;
-                        $job->app->log->info(sprintf "Processing %s %s", $event->type, $event->path);
+                        $log->info(sprintf "Processing %s %s", $event->type, $event->path);
+
                         # The type of event. This must be one of "create", "modify", "delete", or "unknown".
                         # https://metacpan.org/pod/File::ChangeNotify::Event
                         if ($event->type eq 'create' or $event->type eq 'modify') {
@@ -88,9 +65,9 @@ sub register {
 
                             foreach my $trigger (keys %{$triggers}) {
 
-                                $job->app->log->info("testing if file: $file matched /\.$trigger\$/");
+                                $log->info("testing if file: $file matched /\.$trigger\$/");
                                 if ($file =~ m/\.$trigger$/i) {
-                                    $job->app->log->info("file: $file matched /\.$trigger\$/");
+                                    $log->info("file: $file matched /\.$trigger\$/");
                                     $post = $$triggers{$trigger}->new(plerd => $plerd, source_file => $file);
                                     last;
                                 }
@@ -100,12 +77,12 @@ sub register {
                                 if ($job->app->site_info->send_webmentions){
                                     my $report = $post->send_webmentions;
 
-                                    $job->app->log->info(sprintf "Webmentions attempts:%s delivered:%s sent:%s ",
+                                    $log->info(sprintf "Webmentions attempts:%s delivered:%s sent:%s ",
                                         $$report{attempts} // -1, $$report{delivered} // -1, $$report{sent} // -1);
                                 }
                             }
                             else {
-                                $job->app->log->error(
+                                $log->error(
                                     sprintf "Could not make Plerd::Post of any type from  %s", $event->path);
                             }
                         }
@@ -118,7 +95,7 @@ sub register {
                 }
                 catch {
                     my $reason = shift || "Unknown reason";
-                    $job->app->log->error(defined $event
+                    $log->error(defined $event
                         ? sprintf "Unable to %s %s: %s", $event->type, $event->path, $reason
                         : "Unexpected error encountered: $reason");
                 }
@@ -127,9 +104,7 @@ sub register {
 
         $log->info("Stopped watching " . $plerd->source_directory);
 
-        return $run
-            ? $job->retry({ delay => 2 })
-            : $job->finish('Job has exited.');
+        return $job->retry({ delay => 2 });
     });
 }
 

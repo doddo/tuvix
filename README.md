@@ -60,6 +60,10 @@ Starting hot deployment for Hypnotoad server 32023.
 
 Webmention support, as well as the directory watcher and other such slow processes are handled with the the [Minion](https://mojolicious.org/perldoc/Minion) Job queue system.
 
+This is starting automatically if the `minion_workers` config value is set above  `0`. 
+
+If not, it can be started as a separate process like so:
+
 ```
 script/tuvix minion worker
 ```
@@ -71,15 +75,7 @@ script/tuvix minion job --enqueue watch_directory
 1
 ```
 
-It will create a lock, so to recover from a crash, the lock must be lifted before a new process can stat listening to the directory for changes:
-
-This can be  done with the following command.
-```bash
- script/tuvix minion job -U watch_dir_lock
- ```
-
-This implementation is a bit sub-optimal at this point but is a work in progress.
-
+The other jobs, such like recieving and processing [webmentions](https://indieweb.org/Webmention) are jobs which gets automatically enqueued if `recieve_webmentions` is set to something which Perl evaluates to "true", like `1`.
 
 # LICENSE
 

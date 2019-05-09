@@ -4,14 +4,15 @@ use utf8;
 
 use Mojo::Base 'Mojolicious::Controller';
 use Mojolicious;
+
 use Web::Mention::Mojo;
 use URI::Split qw(uri_split uri_join);
 
 use Try::Tiny;
-
 use JSON;
 
 my $json = JSON->new->convert_blessed;
+
 
 sub process_webmention {
     my $c = shift;
@@ -33,6 +34,7 @@ sub process_webmention {
 
         if ($posts->count) {
             $c->render(status => 202, text => "👍The webmention has arrived and will be delt with in due time.");
+
             # TODO check so that the queue ain't too big usw.
             $c->app->minion->enqueue(receive_webmention => [ $json->encode($webmention) ]);
         }
