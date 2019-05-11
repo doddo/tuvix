@@ -18,6 +18,8 @@ WriteMakefile(
         'Plerd'                    => '1.802',
         'SQL::Translator'          => '0.11024',
         'File::ChangeNotify'       => '0.29',
+        'File::Temp'               => '0',
+        'File::Copy'               => '0',
         'Minion::Backend::SQLite'  => '4.002',
         'Mojolicious::Plugin::Minion::Workers' => '0',
         'Web::Mention'             => '0'
