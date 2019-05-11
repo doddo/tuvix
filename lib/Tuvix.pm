@@ -19,6 +19,7 @@ use Mojo::Home;
 # Every CPAN module needs a version
 our $VERSION = '1.0';
 
+
 sub startup {
     my $self = shift;
 
@@ -110,10 +111,15 @@ sub startup {
         $self->log->info("starting without workers.");
     }
 
-    my $watcher = Tuvix::Watcher->new(config => $self->config);
-    my $watcher_pid = $watcher->start();
-
+    if ($self->config('watch_source_dir') // 0){
+        $self->log->info("starting to watch the source dir.");
+        my $watcher = Tuvix::Watcher->new(config => $self->config);
+        my $watcher_pid = $watcher->start();
+    } else {
+        $self->log->info("starting without watching source dir.");
+    }
 }
+
 
 
 1;

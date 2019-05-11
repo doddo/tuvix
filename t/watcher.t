@@ -9,12 +9,12 @@ use Mojo::Unicode::UTF8;
 use File::Temp qw/ tempfile :seekable /;
 use File::Copy;
 
-use Tuvix::Watcher;
-use Tuvix::Schema;
-
 use FindBin;
 
 BEGIN {unshift @INC, ("$FindBin::Bin/lib", "$FindBin::Bin/../lib")}
+
+use Tuvix::Watcher;
+use Tuvix::Schema;
 
 
 plan tests => 4;
@@ -27,6 +27,7 @@ my $temporary_database = File::Temp->new(SUFFIX => '.db');
 
 my @db_cx = ("dbi:SQLite:${temporary_database}", "", "");
 @{${app->config}{'db'}} = @db_cx;
+${app->config}{'watch_source_dir'} = 1;
 
 my $dbh = Tuvix::Schema
     ->connect(@db_cx,
@@ -40,6 +41,7 @@ my $draft_file_t = ${app->config}{'source_path'} . '/draft.markdown';
 my $pid;
 
 {
+    my $i = 0;
 
     chdir "$FindBin::Bin";
 
@@ -48,7 +50,7 @@ my $pid;
     my $watcher = Tuvix::Watcher->new(config => app->config);
     $pid = $watcher->start();
 
-    ok($pid, 'forked a new directory watcher process');
+    ok($pid, "forked a new directory watcher process (with pid $pid)");
 
     my $watcher2 = Tuvix::Watcher->new(config => app->config);
     my $pid2 = $watcher->start(config => app->config);
@@ -57,19 +59,30 @@ my $pid;
 
     my $posts = $dbh->resultset('Post');
 
+    # Give the watcher some time to start watching...
+    # TODO do something proper later
+    sleep 4;
+
     copy($draft_file_s, $draft_file_t) or die $!;
 
-    sleep 3;
+    while (!$posts->find({source_file => 'draft.markdown'})
+        && $i++ < 10 ) {
+        sleep 1;
+    }
 
     ok ($posts->find({source_file => 'draft.markdown'}),
         "draft is published when file is created in source_path");
 
     unlink $draft_file_t;
 
-    sleep 3;
+    while ($posts->find({source_file => 'draft.markdown'})
+        && $i-- > 0 ) {
+        sleep 1;
+    }
 
     ok (! $posts->find({source_file => 'draft.markdown'}),
         "draft is unpublished when file is removed from source_path");
+
 }
 
 done_testing();
@@ -78,8 +91,5 @@ END {
     unlink $draft_file_t;
     unlink $watcher_pidfile;
     unlink $temporary_database;
-    kill($pid) if $pid && -f "/proc/$pid";
+    kill 'TERM', $pid;
 }
-
-
-
