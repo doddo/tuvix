@@ -2,12 +2,13 @@ package Tuvix;
 use Mojo::Base 'Mojolicious';
 use Tuvix::Model::Posts;
 use Tuvix::Model::SiteInfo;
-use Tuvix::Task::Watcher;
+use Tuvix::Watcher;
 use Tuvix::Schema::ResultSet::Webmention;
 use Mojo::Unicode::UTF8;
 use Mojo::URL;
 
 use Tuvix::Schema;
+
 use Mojo::Headers;
 use Minion::Backend::SQLite;
 use Mojo::SQLite;
@@ -15,10 +16,8 @@ use Mojo::SQLite;
 use Mojo::File 'path';
 use Mojo::Home;
 
-
 # Every CPAN module needs a version
 our $VERSION = '1.0';
-
 
 sub startup {
     my $self = shift;
@@ -38,7 +37,6 @@ sub startup {
 
     # Add App specific command namespace.
     push @{$self->commands->namespaces}, 'Tuvix::Command';
-
 
     $self->helper(site_info => sub {Tuvix::Model::SiteInfo->new($self->config)});
     $self->helper(site_info_get => sub {
@@ -73,10 +71,8 @@ sub startup {
     $self->helper(sqlite => sub {
         state $sqlite = Mojo::SQLite->new(substr(@{$self->config('db')}[0], 4))});
 
-
     # Expose publication path to the web.
     push @{$self->static->paths}, $self->site_info->publication_path;
-
 
     # Controller
     my $r = $self->routes;
@@ -100,26 +96,23 @@ sub startup {
 
     $r->websocket('/more_posts')->to('posts#load_next');
 
-    #
     # Share the database connection cache
     $self->plugin('Mojolicious::Plugin::Minion::Workers', { SQLite => $self->sqlite });
 
-
     # The Tasks
-    $self->plugin('Tuvix::Task::Watcher');
     $self->plugin('Tuvix::Task::Webmention');
 
-    # start the tasks
-
+    # start the tasks (TODO: this is a bad idea)
     if ($self->config('minion_workers') // 0) {
-        $self->log->info("enqueuing directory worker job.");
-        $self->minion->enqueue(watch_directory => [ $$ ]);
-
-        $self->log->info(sprintf "Starting %i minion workers.", $self->config('minion_workers') );
+         $self->log->info(sprintf "Starting %i minion workers.", $self->config('minion_workers') );
         $self->minion->workers->manage($self->config('minion_workers'));
     } else {
         $self->log->info("starting without workers.");
     }
+
+    my $watcher = Tuvix::Watcher->new(config => $self->config);
+    my $watcher_pid = $watcher->start();
+
 }
 
 
