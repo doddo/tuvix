@@ -43,5 +43,5 @@ _build_params
 
 # Tuvix files
 *.pid
-tuvix.conf
+/tuvix.conf
 
