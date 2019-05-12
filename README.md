@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/doddo/tuvix.svg?branch=master)](https://travis-ci.org/doddo/tuvix) [![BDocker pulls](https://img.shields.io/docker/pulls/doddo/tuvix.svg)](https://hub.docker.com/r/doddo/tuvix)
+[![Build Status](https://travis-ci.org/doddo/tuvix.svg?branch=master)](https://travis-ci.org/doddo/tuvix) [![Docker build status](https://img.shields.io/docker/cloud/build/doddo/tuvix.svg)](https://hub.docker.com/r/doddo/tuvix)
 
 
 # Tuvix
