@@ -125,9 +125,8 @@ sub _watch_directory {
                     ? sprintf "Unable to %s %s: %s", $event->type, $event->path, $reason
                     : "Unexpected error encountered: $reason");
             }
-        } else {
-            sleep 1;
         }
+        sleep 1;
     };
     $log->info("Stopped watching " . $plerd->source_directory . ". parent dead: $ppid");
 }
