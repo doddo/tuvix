@@ -91,9 +91,9 @@ sub _watch_directory {
 
                         foreach my $trigger (keys %{$triggers}) {
 
-                            $log->info("testing if file: $file matched /\.$trigger\$/");
+                            $log->debug("testing if file: $file matched /\.$trigger\$/");
                             if ($file =~ m/\.$trigger$/i) {
-                                $log->info("file: $file matched /\.$trigger\$/");
+                                $log->info("file: $file matched /\.$trigger\$/ => $$triggers{$trigger}");
                                 $post = $$triggers{$trigger}->new(plerd => $plerd, source_file => $file);
                                 last;
                             }
