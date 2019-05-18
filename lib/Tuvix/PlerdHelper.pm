@@ -70,7 +70,6 @@ sub create_or_update_post {
     my $post = $schema->resultset('Post')->find_or_new(
         {
             guid        => $plerd_post->guid(),
-            source_file => $plerd_post->source_file->basename()
         },
     );
 
