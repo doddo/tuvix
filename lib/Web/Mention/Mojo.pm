@@ -146,7 +146,7 @@ sub _build_endpoint {
     # Is it in the HTML?
     unless ($endpoint) {
         $self->log->debug("No webmention link found in the Target headers of: " .  $target);
-        if ($headers && $headers->can('content_type') && $headers->content_type =~ m{^text/html\b}) {
+        if ($headers && $headers->content_type && $headers->content_type  =~ m{^text/html\b}) {
             my $dom = Mojo::DOM58->new($response->res->content->get_body_chunk);
             my $nodes_ref = $dom->find(
                 'link[rel~="webmention"], a[rel~="webmention"]'

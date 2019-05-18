@@ -69,8 +69,7 @@ sub create_or_update_post {
 
     my $post = $schema->resultset('Post')->find_or_new(
         {
-            guid        => $plerd_post->guid(),
-            source_file => $plerd_post->source_file->basename()
+            guid => $plerd_post->guid(),
         },
     );
 
@@ -97,13 +96,13 @@ sub create_or_update_post {
 
     if ($plerd_post->tags()) {
         foreach (@{$plerd_post->tags()}) {
-            $schema->resultset('Tags')->new(
+            $schema->resultset('Tags')->find_or_new(
                 {
                     guid        => $plerd_post->guid(),
                     tag         => $_,
                     url_escaped => url_escape $_
                 }
-            )->insert;
+            )->insert_or_update;
         }
     }
 

@@ -15,6 +15,9 @@ use Mojo::Unicode::UTF8;
 use Mojo::Util qw(slugify);
 
 use Moose;
+
+use Set::Scalar;
+
 use Fcntl qw( :flock );
 
 has 'log' => (
@@ -39,7 +42,6 @@ sub _build_watcher_pidfile {
     return shift->{config}->{watcher_pidfile} ||
         "$FindBin::Bin/../watcher.pid"
 }
-
 
 sub _watch_directory {
     my ($self, $ppid) = @_;
@@ -75,6 +77,9 @@ sub _watch_directory {
 
     my $triggers = $plerd->post_triggers;
     $log->info("Started watching " . $plerd->source_directory);
+
+    my $events_ignore = Set::Scalar->new();
+
     while( -e "/proc/${ppid}" ) {
         if (my @events = $watcher->new_events) {
             my $event;
@@ -86,36 +91,48 @@ sub _watch_directory {
                     # The type of event. This must be one of "create", "modify", "delete", or "unknown".
                     # https://metacpan.org/pod/File::ChangeNotify::Event
                     if ($event->type eq 'create' or $event->type eq 'modify') {
-                        my $file = Path::Class::File->new($event->path);
-                        my $post;
+                        if ($event->type eq 'modify' && $events_ignore->has($event->path)){
+                            $log->info(sprintf
+                                "Ignoring event for %s: likely caused by earlier event", $event->path);
+                            $events_ignore->delete($event->path);
 
-                        foreach my $trigger (keys %{$triggers}) {
+                        } else {
+                            my $file = Path::Class::File->new($event->path);
+                            my $post;
 
-                            $log->debug("testing if file: $file matched /\.$trigger\$/");
-                            if ($file =~ m/\.$trigger$/i) {
-                                $log->info("file: $file matched /\.$trigger\$/ => $$triggers{$trigger}");
-                                $post = $$triggers{$trigger}->new(plerd => $plerd, source_file => $file);
-                                last;
+                            foreach my $trigger (keys %{$triggers}) {
+
+                                $log->debug("testing if file: $file matched /\.$trigger\$/");
+                                if ($file =~ m/\.$trigger$/i) {
+                                    $log->info("file: $file matched /\.$trigger\$/ => $$triggers{$trigger}");
+                                    $post = $$triggers{$trigger}->new(plerd => $plerd, source_file => $file);
+                                    last;
+                                }
                             }
-                        }
-                        if ($post) {
-                            $plerd_helper->create_or_update_post($post);
-                            if ($$config{send_webmentions}){
-                                my $report = $post->send_webmentions;
+                            if ($post) {
+                                $plerd_helper->create_or_update_post($post);
+                                if ($$config{send_webmentions}){
+                                    my $report = $post->send_webmentions;
 
-                                $log->info(sprintf "Webmentions attempts:%s delivered:%s sent:%s ",
-                                    $$report{attempts} // -1, $$report{delivered} // -1, $$report{sent} // -1);
+                                    $log->info(sprintf "Webmentions attempts:%s delivered:%s sent:%s ",
+                                        $$report{attempts} // -1, $$report{delivered} // -1, $$report{sent} // -1);
+                                }
+
+                                # So that it won't be in there no more
+                                $events_ignore->insert($event->path);
                             }
-                        }
-                        else {
-                            $log->error(
-                                sprintf "Could not make Plerd::Post of any type from  %s", $event->path);
+                            else {
+                                $log->error(
+                                    sprintf "Could not make Plerd::Post of any type from  %s", $event->path);
+                            }
                         }
                     }
                     elsif ($event->type eq 'delete') {
                         $plerd_helper->delete_post_from_filename(Path::Class::File
                             ->new($event->path)
                             ->basename);
+                        # Dont think this is needed ...
+                        $events_ignore->delete($event->path) if $events_ignore->has($event->path);
                     }
                 }
             }
@@ -156,7 +173,6 @@ sub start {
     }
     return 0;
 }
-
 
 1;
 
