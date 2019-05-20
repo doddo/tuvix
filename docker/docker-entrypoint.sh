@@ -3,7 +3,7 @@ set -ex
 
 
 
-if [ "$1" = '/opt/tuvix/perl5/bin/hypnotoad' ]; 
+if [ "$1" = 'hypnotoad' ];
 then
 
 	CONF=${MOJO_CONFIG:-/opt/tuvix/tuvix.conf}

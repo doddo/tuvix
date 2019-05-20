@@ -29,5 +29,7 @@ USER root
 COPY docker/docker-entrypoint.sh /usr/local/bin/
 USER tuvix
 
-CMD ["/opt/tuvix/perl5/bin/hypnotoad", "-f", "script/tuvix"]
+ENV PATH="/opt/tuvix/perl5/bin:${PATH}"
+
+CMD ["hypnotoad", "-f", "script/tuvix"]
 ENTRYPOINT ["docker-entrypoint.sh"]
