@@ -103,23 +103,14 @@ sub startup {
     # The Tasks
     $self->plugin('Tuvix::Task::Webmention');
 
-    # start the tasks (TODO: this is a bad idea)
-    if ($self->config('minion_workers') // 0) {
-         $self->log->info(sprintf "Starting %i minion workers.", $self->config('minion_workers') );
-        $self->minion->workers->manage($self->config('minion_workers'));
-    } else {
-        $self->log->info("starting without workers.");
-    }
-
-    if ($self->config('watch_source_dir') // 0){
+    if ($self->config('watch_source_dir') // 0) {
         $self->log->info("starting to watch the source dir.");
         my $watcher = Tuvix::Watcher->new(config => $self->config);
         my $watcher_pid = $watcher->start();
-    } else {
+    }
+    else {
         $self->log->info("starting without watching source dir.");
     }
 }
-
-
 
 1;

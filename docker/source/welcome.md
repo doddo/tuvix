@@ -3,6 +3,8 @@ title: Welcome
 
 Welcome to the [tuvix](https://github.com/doddo/tuvix) docker container.
 
+There are some recommended reading in the [config instructions](/posts/2019-05-21-configuration-instructions) page, which will help you get started in no time at all.
+
 ## what is this
 
 This is a post, like, it's rendered from a markdown document.
