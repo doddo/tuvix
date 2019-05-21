@@ -17,19 +17,19 @@ use Mojo::Util qw(slugify);
 use Moose;
 use Carp qw/cluck/;
 
-use Set::Scalar;
+use Tie::Hash::Expire;
 
-use Fcntl qw( :flock );
+use Fcntl qw(:flock);
 
 has 'log' => (
-    'is' => 'ro',
-    isa  => 'Mojo::Log',
-    default => sub { Mojo::Log->new() }
+    'is'    => 'ro',
+    isa     => 'Mojo::Log',
+    default => sub {Mojo::Log->new()}
 );
 
 has 'config' => (
-    isa => 'HashRef',
-    is => 'ro',
+    isa      => 'HashRef',
+    is       => 'ro',
     required => 1
 );
 
@@ -46,6 +46,9 @@ sub _build_watcher_pidfile {
 
 sub _watch_directory {
     my ($self, $ppid) = @_;
+
+    my %events_ignore;
+    tie %events_ignore, 'Tie::Hash::Expire', { 'expire_seconds' => 4 };
 
     my $watcher;
     my $plerd;
@@ -79,11 +82,10 @@ sub _watch_directory {
     my $triggers = $plerd->post_triggers;
     $log->info("Started watching " . $plerd->source_directory);
 
-    my $events_ignore = Set::Scalar->new();
-
-    while( -e "/proc/${ppid}" ) {
+    while (-e "/proc/${ppid}") {
         if (my @events = $watcher->new_events) {
             my $event;
+            # TODO: find out if a file has been moved (delete event and a create event)
             try {
                 foreach (@events) {
                     $event = $_;
@@ -92,12 +94,12 @@ sub _watch_directory {
                     # The type of event. This must be one of "create", "modify", "delete", or "unknown".
                     # https://metacpan.org/pod/File::ChangeNotify::Event
                     if ($event->type eq 'create' or $event->type eq 'modify') {
-                        if ($event->type eq 'modify' && $events_ignore->has($event->path)){
-                            $log->info(sprintf
-                                "Ignoring event for %s: likely caused by earlier event", $event->path);
-                            $events_ignore->delete($event->path);
-
-                        } else {
+                        if ($event->type eq 'modify' && defined $events_ignore{$event->path}) {
+                            $log->info(
+                                sprintf "Ignoring event for %s: - likely caused by earlier event (such as a create)",
+                                    $event->path);
+                        }
+                        else {
                             my $file = Path::Class::File->new($event->path);
                             my $post;
 
@@ -112,15 +114,14 @@ sub _watch_directory {
                             }
                             if ($post) {
                                 $plerd_helper->create_or_update_post($post);
-                                if ($$config{send_webmentions}){
+                                if ($$config{send_webmentions}) {
                                     my $report = $post->send_webmentions;
 
                                     $log->info(sprintf "Webmentions attempts:%s delivered:%s sent:%s ",
                                         $$report{attempts} // -1, $$report{delivered} // -1, $$report{sent} // -1);
                                 }
 
-                                # So that it won't be in there no more
-                                $events_ignore->insert($event->path);
+                                $events_ignore{$event->path} = 1;
                             }
                             else {
                                 $log->error(
@@ -132,8 +133,6 @@ sub _watch_directory {
                         $plerd_helper->delete_post_from_filename(Path::Class::File
                             ->new($event->path)
                             ->basename);
-                        # Dont think this is needed ...
-                        $events_ignore->delete($event->path) if $events_ignore->has($event->path);
                     }
                 }
             }
@@ -158,15 +157,17 @@ sub start {
     open(my $fh, '+>', $self->watcher_pidfile) or die
         sprintf "Unable to open watcher pidfile: %s: %s", $self->watcher_pidfile, $!;
 
-    unless (flock($fh, LOCK_EX|LOCK_NB)) {
+    unless (flock($fh, LOCK_EX | LOCK_NB)) {
         $self->log->error(
-            sprintf ("Not starting the directory watcher: Unable to acquire pid file: %s lock:%s",
+            sprintf("Not starting the directory watcher: Unable to acquire pid file: %s lock:%s",
                 $self->watcher_pidfile, $!));
-    } else {
+    }
+    else {
         my $child_pid = fork();
-        if ($child_pid){
+        if ($child_pid) {
             return $child_pid;
-        } else {
+        }
+        else {
             truncate $fh, 0;
             print $fh $$;
             $self->log->info("Starting directory watcher with pid $$ .");
