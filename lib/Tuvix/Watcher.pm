@@ -15,6 +15,7 @@ use Mojo::Unicode::UTF8;
 use Mojo::Util qw(slugify);
 
 use Moose;
+use Carp qw/cluck/;
 
 use Set::Scalar;
 
@@ -141,6 +142,8 @@ sub _watch_directory {
                 $log->error(defined $event
                     ? sprintf "Unable to %s %s: %s", $event->type, $event->path, $reason
                     : "Unexpected error encountered: $reason");
+
+                cluck "$reason";
             }
         }
         sleep 1;

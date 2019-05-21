@@ -88,41 +88,6 @@ sub register {
 
         $job->finish('All went well!');
     });
-
-    $app->minion->add_task(send_webmention => sub {
-        my ($job, $wm_json) = @_;
-        my $webmention = Web::Mention::Mojo
-            ->FROM_JSON($json->decode($wm_json));
-
-        if ($webmention->source && $webmention->target) {
-            $job->fail("Unable to deserialize webmention from: " . Dumper($wm_json))
-        }
-
-        if ($job->app->can('ua') && $app->ua) {
-            # So that it can be tested, but also so that custom settings can be provided
-            # such like user agent and timeouts usw.
-            $webmention->ua($app->ua)
-        }
-
-        try {
-            if ($webmention->send) {
-                $job->app->log->info(sprintf "Webmention to endpoint [%s] from [%s] sent.",
-                    $webmention->target, $webmention->source);
-            }
-            elsif ($_->endpoint) {
-                $job->app->log->info(sprintf "Webmention to endpoint [%s] from [%s] sent,"
-                    . "but no delivery confirmation recieved.",
-                    $webmention->target, $webmention->source());
-            }
-        }
-        catch {
-            my $err = shift || 'unknown error';
-            $job->fail(sprintf "Webmentionto endpoint [%s] from [%s] crashed: %s.",
-                $webmention->target, $webmention->source, $err);
-        }
-
-        $job->finish('All went well!');
-    });
 }
 
 1;

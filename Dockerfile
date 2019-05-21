@@ -1,5 +1,7 @@
 FROM perl:latest
 
+RUN apt update && apt install -y supervisor
+
 RUN useradd --system tuvix -d /opt/tuvix/
 RUN mkdir -p /opt/tuvix/page/db /opt/tuvix/page/source
 COPY Makefile.PL /opt/tuvix/Makefile.PL
@@ -26,10 +28,13 @@ COPY --chown=tuvix docker/pub/ /opt/tuvix/page/pub
 COPY --chown=tuvix docker/tuvix.conf /opt/tuvix/tuvix.conf
 COPY --chown=tuvix docker/tuvix.conf /opt/tuvix/tuvix.conf
 USER root
-COPY docker/docker-entrypoint.sh /usr/local/bin/
+COPY docker/dbinit.sh /usr/local/bin/
+COPY docker/supervisord.conf /etc/supervisor/supervisord.conf
 USER tuvix
 
 ENV PATH="/opt/tuvix/perl5/bin:${PATH}"
 
-CMD ["hypnotoad", "-f", "script/tuvix"]
-ENTRYPOINT ["docker-entrypoint.sh"]
+#CMD ["hypnotoad", "-f", "script/tuvix"]
+#ENTRYPOINT ["docker-entrypoint.sh"]
+
+CMD ["/usr/bin/supervisord"]
