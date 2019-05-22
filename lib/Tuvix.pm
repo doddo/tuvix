@@ -102,7 +102,7 @@ sub startup {
 
     # The Tasks
     $self->plugin('Tuvix::Task::Webmention');
-    
+
     if ($self->config('watch_source_dir') // 0) {
         $self->log->info("starting to watch the source dir.");
         my $watcher = Tuvix::Watcher->new(config => $self->config);

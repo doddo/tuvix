@@ -81,7 +81,7 @@ sub register {
         }
         else {
             # TODO: handle
-            $job->app->log->info('Not able to verify webmention from, maybe a delete: %s to %s.',
+            $job->app->log->info(sprintf 'Not able to verify webmention from, maybe a delete: %s to %s.',
                 $webmention->source, $webmention->target);
             # SOMETHING->POSSIBLY_DELETE_WEBMENTION
         }
