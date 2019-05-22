@@ -14,10 +14,9 @@ requires 'Minion::Backend::SQLite'; # TBD
 requires 'File::Temp';
 requires 'File::Copy';
 
-
 requires 'Moose';
 requires 'Plerd', '1.802';
 requires 'Text::MultiMarkdown', '1.000035';
-requires 'Set::Scalar';
+requires 'Tie::Hash::Expire', '0.03';
 requires 'SQL::Translator';
 requires 'File::ChangeNotify';

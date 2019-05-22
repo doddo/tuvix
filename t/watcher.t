@@ -69,9 +69,9 @@ my $pid;
         && $i++ < 10 ) {
         sleep 1;
     }
-
     ok ($posts->find({source_file => 'draft.markdown'}),
         "draft is published when file is created in source_path");
+
 
     unlink $draft_file_t;
 
