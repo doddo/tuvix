@@ -12,7 +12,6 @@
             if ($(document).height() - win.height() == win.scrollTop()) {
                  var ws = new WebSocket('<%= websocket_url %>');
 
-
                 // $('#loading').show();
                 ws.onmessage = function (event) {
                     if (event.data) {
@@ -22,8 +21,7 @@
                         $('#next-prev-page').hide();
                     }
                 };
-
-                ws.onopen  = function (event) { ws.send(++i) };
+                ws.onopen = function (event) { ws.send(++i) };
             }
         });
     });
@@ -73,21 +71,27 @@
         </div>
 %}
 %}
+
 % if ($posts->count > 1) {
-<hr>
-    <div class="row" id="next-prev-page>
-%   if ($page > 1) {
-        <div class="col-xs-12">
-            <a class="col-xs-12" href="/posts/?page=<%= $page - 1 %>"/> ⟵ previous page</a>
-        </div>
+% my $pager = $posts->pager;
+
+    <nav aria-label="Browse the contents" id="next-prev-page">
+      <ul class="pagination">
+        % if ($pager->previous_page) {
+        <li class="page-item"><a class="page-link" href=href="/posts/?page=<%= $pager->previous_page %>">«</a></li!>
+        %}
+        % foreach my $page_no (1 .. $pager->last_page) {
+        <li class="page-item"><a class="page-link" href="/posts/?page=<%= $page_no %>"><%= $page_no %></a></li>
+
+        %}
+        % if ($posts->pager->next_page) {
+        <li class="page-item"><a class="page-link" href="/posts/?page=<%= $posts->pager->next_page %>">»</a></li>
+        %}
+
+      </ul>
+    </nav>
 %}
-%   if ($posts->pager->next_page) {
-        <div class="col-xs-12">
-            <a class="col-xs-12" href="/posts/?page=<%= $posts->pager->next_page %>"/> next page ⟶ </a>
-        </div>
-%}
-    </div>
-%}
+
 
 <style>
 /* img.media-object { max-width: 64px } */

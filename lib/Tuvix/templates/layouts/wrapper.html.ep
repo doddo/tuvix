@@ -25,6 +25,22 @@
         .sidebar section {
             margin-top: 2em;
         }
+        .h1, h1 {
+            font-size: 2.0rem;
+        }
+        .h2, h2 {
+            font-size: 1.5rem;
+        }
+        .h3, h3 {
+            font-size: 1.3rem;
+        }
+        h1 a, h2 a, h3 a {
+             color: #000;
+        }
+        a {
+            color: #bb3333;
+            &:hover{ color:#d99a30;}
+        }
 
     </style>
 </head>

@@ -1,32 +1,40 @@
 % layout 'wrapper';
 % my $first_post;
 % my $post;
-<div class="page-header">
-<h1>Archive</h1>
-</div>
-<h2><%=$wanted->month_name %> - <%= $wanted->year %></h2>
-<ul>
-% while ($_ = $posts->next) {
-%   $first_post ||= $_;
-%   $post = $_; #  ¯\_(ツ)_/¯
-<li><a href="<%= $_->uri %>"><%= $_->title %></a></li>
-%}
-</ul>
 
-% if (!$post) {
-    <h3>No posts this interval.</h3>
-%}
-% else {
+<div id="archive">
+    <div class="post h-entry container">
+        <div class="pt-4 mt-4 border-bottom">
+            <h1>Archive</h1>
+            <p>Showing posts for <%=$wanted->month_name %> <%= $wanted->year %></p>
+        </div>
+        <div class="body e-content container">
+            <ul>
+            % while ($_ = $posts->next) {
+            %   $first_post ||= $_;
+            %   $post = $_; #  ¯\_(ツ)_/¯
+            <li><a href="<%= $_->uri %>"><%= $_->title %></a></li>
+            %}
+            </ul>
 
-% if ($post->older_post || $first_post->newer_post) {
-<div>
-    <hr />
-%  if ($first_post->newer_post) {
-<p><a href="/posts/archive?month=<%= $first_post->newer_post->date->month %>&year=<%= $first_post->newer_post->date->year %>">Newer posts ...</a></p>
-%}
-%  if ($post->older_post) {
-<p><a href="/posts/archive?month=<%= $post->older_post->date->month %>&year=<%=$post->older_post->date->year %>">Older posts...</a></p>
-%}
+            % if (!$post) {
+                <h3>No posts this interval.</h3>
+            %}
+            % else {
+
+            % if ($post->older_post || $first_post->newer_post) {
+            <div>
+                <hr />
+            %  if ($first_post->newer_post) {
+            <p><a href="/posts/archive?month=<%= $first_post->newer_post->date->month %>&year=<%= $first_post->newer_post->date->year %>">Newer posts ...</a></p>
+            %}
+            %  if ($post->older_post) {
+            <p><a href="/posts/archive?month=<%= $post->older_post->date->month %>&year=<%=$post->older_post->date->year %>">Older posts...</a></p>
+            %}
+            </div>
+            %}
+            %}
+
+        </div>
+    </div>
 </div>
-%}
-%}
