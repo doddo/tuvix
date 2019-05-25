@@ -9,16 +9,16 @@
         var eof = false;
         win.scroll(function() {
             // End of the document reached?
-            if ($(document).height() - win.height() == win.scrollTop()) {
+            if (!eof && $(document).height() - win.height() == win.scrollTop()) {
                  var ws = new WebSocket('<%= websocket_url %>');
 
                 // $('#loading').show();
                 ws.onmessage = function (event) {
-                    if (event.data) {
-                        $( "#posts" ).append(event.data);
-                    } else {
+                    if (event.data === 'EOF') {
                         eof = true;
                         $('#next-prev-page').hide();
+                    } else {
+                        $( "#posts" ).append(event.data);
                     }
                 };
                 ws.onopen = function (event) { ws.send(++i) };
