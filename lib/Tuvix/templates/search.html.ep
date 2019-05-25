@@ -1,4 +1,5 @@
 % layout 'wrapper';
+% my $count = defined $posts && $posts->count ? $posts->count : 0;
 
 <div id="search">
     <div class="post h-entry">
@@ -6,15 +7,19 @@
          <h1>Search</h1>
              <p>
              <%= defined $query
-                ? sprintf "Found %i %s.",  $posts->count, $posts->count == 1 ? "post" : "posts"
+                ? sprintf "Found %i %s.",  $count, $count  == 1 ? "post" : "posts"
                 : "Please input a query in the search box." %>
             </p>
          </div>
         <div class="body e-content">
             <p>
                 <ul>
-                % while (my $post = $posts->next) {
-                    <li><a href="<%= $post->uri %>"><%= $post->title %></a></li>
+                % if ($posts){
+                    % while (my $post = $posts->next) {
+                        <li><a href="<%= $post->uri %>"><%= $post->title %></a></li>
+                    %}
+                %} else {
+                    Nothing found.
                 %}
                 </ul>
             </p>
