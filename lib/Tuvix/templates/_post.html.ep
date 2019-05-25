@@ -1,8 +1,8 @@
 % my $rel = $first_time ? 'rel="me"' : '';
 % my $uid = $first_time ? ' u-uid' : '';
-    <div class="post h-entry container">
+    <div class="post h-entry">
         <div class="pt-4 mt-4 border-bottom">
-            <h1>
+            <h1 class="post-title">
                 <a href="<%= $post->uri %>"><%== $post->title %></a>
             </h1>
             <p class="blog-post-meta"><%= $post->date->ymd %></p>
