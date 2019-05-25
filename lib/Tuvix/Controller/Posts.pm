@@ -148,7 +148,8 @@ sub search {
         $c->res->code(
             $posts->count ? 200 : 404
         );
-    } else {
+    }
+    else {
         # 400 if the search param is missing
         $c->res->code(400);
     }
@@ -168,9 +169,17 @@ sub load_next {
     my $c = shift;
     $c->on(message => sub {
         my ($self, $page) = @_;
-        for my $post ($self->posts->get_posts_from_query(undef, $page)->all) {
-            $self->stash(post => $post);
-            $self->send($self->render_to_string(template => '_post'));
+
+        my $posts = $self->posts->get_posts_from_query(undef, $page);
+
+        if ($posts->count) {
+            while (my $post = $posts->next) {
+                $self->stash(post => $post);
+                $self->send($self->render_to_string(template => '_post'));
+            }
+        }
+        else {
+            $self->send('EOF');
         };
     });
 }

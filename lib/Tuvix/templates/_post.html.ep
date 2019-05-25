@@ -1,11 +1,13 @@
 % my $rel = $first_time ? 'rel="me"' : '';
 % my $uid = $first_time ? ' u-uid' : '';
     <div class="post h-entry">
-        <div class="title page-header">
-            <h1>
-                <a href="<%= $post->uri %>"><span class="p-name"><%= $post->title %></span><br /><small><%= $post->date->ymd %></small></a>
+        <div class="pt-4 mt-4 border-bottom">
+            <h1 class="post-title">
+                <a href="<%= $post->uri %>"><%== $post->title %></a>
             </h1>
+            <p class="blog-post-meta"><%= $post->date->ymd %></p>
         </div>
+
         <data class="dt-published" value="<%= $post->date->iso8601().'Z' %>"></data>
         <data class="p-author h-card">
             <data class="p-name" value="<%= $post->author_name %>"></data>
@@ -14,7 +16,7 @@
             <data class="u-photo" value="<%= site_info->author_photo->to_abs %>"></data>
         </data>
         <data class="p-summary" value="<%= $post->description %>"></data>
-        <data class="u-url u-uid" value="<%=  base_url->path($post->path)->to_abs %>"></data>
+        <data class="u-url u-uid" value="<%= base_url->path($post->path)->to_abs %>"></data>
         <div class="body e-content">
             <%== $post->body %>
         </div>

@@ -73,7 +73,10 @@ sub create_or_update_post {
         },
     );
 
-    $plerd_post->description($plerd_post->stripped_body);
+    my $description = $plerd_post->stripped_body;
+    $description =~ s/^\s+|\s+$//g;
+
+    $plerd_post->description($description);
 
     $post->author_name($plerd_post->plerd->author_name());
     $post->body($plerd_post->body());

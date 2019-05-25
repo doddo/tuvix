@@ -2,8 +2,8 @@
 <html>
 <head>
     <title><%== $title %></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link href="/posts?feed=rss" rel="alternate" title="<%= site_info->title %>" type="application/atom+xml">
     <link rel="profile" href="http://microformats.org/profile/hcard">
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
@@ -25,56 +25,79 @@
         .sidebar section {
             margin-top: 2em;
         }
+        .h1, h1 {
+            font-size: 2.0rem;
+        }
+        .h2, h2 {
+            font-size: 1.5rem;
+        }
+        .h3, h3 {
+            font-size: 1.3rem;
+        }
+        h1 a, h2 a, h3 a {
+             color: #000;
+        }
+        a {
+            color: #bb3333;
+            &:hover{ color:#d99a30;}
+        }
+
     </style>
 </head>
 <body>
-    <div class="navbar navbar-default" role="navigation">
+    <nav class="navbar navbar-expand-md navbar-light" style="background-color: #e3f2fd;" role="navigation">
         <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="/"><%== site_info->title %></a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    % while (my $page = $pages->next) {
-                    <li><a href="<%= $page->path %>"><%= $page->title %></a></li>
-                    %}
-                    <li><a href="/posts/archive">Archive</a></li>
-                    <li><a href="/posts?feed=rss">RSS</a></li>
-                </ul>
-            </div><!--/.navbar-collapse -->
-        </div>
-    </div>
 
-    <div class="container">
-    <div class="row">
-        <div class="col-sm-9">
-            <%= content  %>
-        </div>
-        <div class="col-sm-3 sidebar">
-            <%== site_info->sidebar_section %>
-            <section>
-                <h1>Search</h1>
-                <form action="/posts/search" method="post">
-                <input name="q" type="text" placeholder="Search this blog" />
-                <input type="submit" value="Go" />
-                </form>
-            </section>
-            <section>
-                <h1>Recent Posts</h1>
-                <ul>
-                % foreach my $post  (recent_posts->all) {
-                    <li><a href="<%= $post->uri %>"><%= $post->title %></a></li>
-                % }
+            <a class="navbar-brand" href="/"><%== site_info->title %></a>
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                &#x2630;
+            </button>
+
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav mr-auto">
+                    % while (my $page = $pages->next) {
+                    <li class="nav-item"><a href="<%= $page->path %>" class="nav-link"><%= $page->title %></a></li>
+                    %}
+                    <li class="nav-item"><a href="/posts/archive" class="nav-link">Archive</a></li>
+                    <li class="nav-item"><a href="/posts?feed=rss" class="nav-link">RSS</a></li>
                 </ul>
-            </section>
+            </div>
+
+            <!--/.navbar-collapse -->
         </div>
-    </div>
+    </nav>
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-md-9">
+                <%= content  %>
+            </div>
+
+            <div class="col-md-3 sidebar">
+                <section>
+                <%== site_info->sidebar_section %>
+                </section>
+                <section>
+                    <h1>Search</h1>
+                    <form action="/posts/search" method="post">
+                    <input name="q" type="text" placeholder="Search this blog" />
+                    <input type="submit" value="Go" />
+                    </form>
+                </section>
+                <section class="d-none d-lg-block">
+                    <h1>Recent Posts</h1>
+                    <ul>
+                    % foreach my $post  (recent_posts->all) {
+                        <li><a href="<%= $post->uri %>"><%= $post->title %></a></li>
+                    % }
+                    </ul>
+                </section>
+            </div>
+
+        </div>
+
         <footer style="font-size:small; font-style:italic" class="container">
         <hr />
         <%== site_info->footer_section %>

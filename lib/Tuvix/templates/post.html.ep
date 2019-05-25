@@ -6,14 +6,22 @@
    $(document).ready(function() {
         var win = $(window);
         var i = 1;
+        var eof = false;
         win.scroll(function() {
             // End of the document reached?
-            if ($(document).height() - win.height() == win.scrollTop()) {
+            if (!eof && $(document).height() - win.height() == win.scrollTop()) {
                  var ws = new WebSocket('<%= websocket_url %>');
 
                 // $('#loading').show();
-                  ws.onmessage = function (event) { $( "#posts" ).append(event.data) };
-                  ws.onopen    = function (event) { ws.send(++i) };
+                ws.onmessage = function (event) {
+                    if (event.data === 'EOF') {
+                        eof = true;
+                        $('#next-prev-page').hide();
+                    } else {
+                        $( "#posts" ).append(event.data);
+                    }
+                };
+                ws.onopen = function (event) { ws.send(++i) };
             }
         });
     });
@@ -63,23 +71,28 @@
         </div>
 %}
 %}
+
 % if ($posts->count > 1) {
-<hr>
-    <div class="row">
-%   if ($page > 1) {
-<div class="col-xs-12">
-    <a class="col-xs-12" href="/posts/?page=<%= $page - 1 %>"/> ⟵ previous page</a>
-            </div>
-%}
-%   if ($posts->pager->next_page) {
-<div class="col-xs-12">
-    <a class="col-xs-12" href="/posts/?page=<%= $posts->pager->next_page %>"/> next page ⟶ </a>
-            </div>
+% my $pager = $posts->pager;
+
+    <nav aria-label="Browse the contents" id="next-prev-page">
+      <ul class="pagination">
+        % if ($pager->previous_page) {
+        <li class="page-item"><a class="page-link" href=href="/posts/?page=<%= $pager->previous_page %>">«</a></li!>
+        %}
+        % foreach my $page_no (1 .. $pager->last_page) {
+        <li class="page-item"><a class="page-link" href="/posts/?page=<%= $page_no %>"><%= $page_no %></a></li>
+
+        %}
+        % if ($posts->pager->next_page) {
+        <li class="page-item"><a class="page-link" href="/posts/?page=<%= $posts->pager->next_page %>">»</a></li>
+        %}
+
+      </ul>
+    </nav>
 %}
 
 
-</div>
-%}
 <style>
 /* img.media-object { max-width: 64px } */
 </style>
