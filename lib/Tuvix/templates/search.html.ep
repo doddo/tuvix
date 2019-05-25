@@ -12,6 +12,11 @@
             </p>
          </div>
         <div class="body e-content">
+            <h2>
+                 <%= $query
+                    ? "Results for '$query'"
+                    : "Nothing found." %>
+            </h2>
             <p>
                 <ul>
                 % if ($posts){
@@ -19,7 +24,7 @@
                         <li><a href="<%= $post->uri %>"><%= $post->title %></a></li>
                     %}
                 %} else {
-                    Nothing found.
+                    Please input a query in the search box.
                 %}
                 </ul>
             </p>
