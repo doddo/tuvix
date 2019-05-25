@@ -1,111 +1,110 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title><%== $title %></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link href="/posts?feed=rss" rel="alternate" title="<%= site_info->title %>" type="application/atom+xml">
-    <link rel="profile" href="http://microformats.org/profile/hcard">
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
-    <link rel="webmention" href="<%= webmention_url->to_abs %>" />
-    <style>
-        img {
-            border: 0;
-            max-width: 100%;
-        }
-        .page-header h1 :link, .page-header h1 :visited {
-            color: black;
-        }
-        .sidebar h1 {
-            font-size: 1.5em;
-        }
-        img.author-link {
-            width: 20px;
-        }
-        .sidebar section {
-            margin-top: 2em;
-        }
-        .h1, h1 {
-            font-size: 2.0rem;
-        }
-        .h2, h2 {
-            font-size: 1.5rem;
-        }
-        .h3, h3 {
-            font-size: 1.3rem;
-        }
-        h1 a, h2 a, h3 a {
-             color: #000;
-        }
-        a {
-            color: #bb3333;
-            &:hover{ color:#d99a30;}
-        }
+    <head>
+        <title><%== $title %></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-md navbar-light" style="background-color: #e3f2fd;" role="navigation">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link href="/posts?feed=rss" rel="alternate" title="<%= site_info->title %>" type="application/atom+xml">
+        <link rel="profile" href="http://microformats.org/profile/hcard">
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+        <link rel="webmention" href="<%= webmention_url->to_abs %>" />
+        <style>
+            img {
+                border: 0;
+                max-width: 100%;
+            }
+            .page-header h1 :link, .page-header h1 :visited {
+                color: black;
+            }
+            .sidebar h1 {
+                font-size: 1.5em;
+            }
+            img.author-link {
+                width: 20px;
+            }
+            .sidebar section {
+                margin-top: 2em;
+            }
+            .h1, h1 {
+                font-size: 2.0rem;
+            }
+            .h2, h2 {
+                font-size: 1.5rem;
+            }
+            .h3, h3 {
+                font-size: 1.3rem;
+            }
+            h1 a, h2 a, h3 a {
+                 color: #000;
+            }
+            a {
+                color: #bb3333;
+                &:hover{ color:#d99a30;}
+            }
+
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-md navbar-light" style="background-color: #e3f2fd;" role="navigation">
+            <div class="container">
+
+                <a class="navbar-brand" href="/"><%== site_info->title %></a>
+
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavBar" aria-controls="mainNavBar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNavBar">
+                    <ul class="navbar-nav mr-auto">
+                        % while (my $page = $pages->next) {
+                        <li class="nav-item"><a href="<%= $page->path %>" class="nav-link"><%= $page->title %></a></li>
+                        %}
+                        <li class="nav-item"><a href="/posts/archive" class="nav-link">Archive</a></li>
+                        <li class="nav-item"><a href="/posts?feed=rss" class="nav-link  pull-right">RSS</a></li>
+                    </ul>
+                    <form class="form-inline my-2 my-lg-0" action="/posts/search" method="post">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Search" name="q" aria-label="Search">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Go</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+
         <div class="container">
 
-            <a class="navbar-brand" href="/"><%== site_info->title %></a>
-            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                &#x2630;
-            </button>
+            <div class="row">
 
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav mr-auto">
-                    % while (my $page = $pages->next) {
-                    <li class="nav-item"><a href="<%= $page->path %>" class="nav-link"><%= $page->title %></a></li>
-                    %}
-                    <li class="nav-item"><a href="/posts/archive" class="nav-link">Archive</a></li>
-                    <li class="nav-item"><a href="/posts?feed=rss" class="nav-link">RSS</a></li>
-                </ul>
+                <div class="col-md-9">
+                    <%= content  %>
+                </div>
+
+                <div class="col-md-3 sidebar">
+                    <section>
+                    <%== site_info->sidebar_section %>
+                    </section>
+                    <section class="d-none d-lg-block">
+                        <h1>Recent Posts</h1>
+                        <ul>
+                        % foreach my $post  (recent_posts->all) {
+                            <li><a href="<%= $post->uri %>"><%= $post->title %></a></li>
+                        % }
+                        </ul>
+                    </section>
+                </div>
+
             </div>
 
-            <!--/.navbar-collapse -->
-        </div>
-    </nav>
-    <div class="container">
-
-        <div class="row">
-
-            <div class="col-md-9">
-                <%= content  %>
-            </div>
-
-            <div class="col-md-3 sidebar">
-                <section>
-                <%== site_info->sidebar_section %>
-                </section>
-                <section>
-                    <h1>Search</h1>
-                    <form action="/posts/search" method="post">
-                    <input name="q" type="text" placeholder="Search this blog" />
-                    <input type="submit" value="Go" />
-                    </form>
-                </section>
-                <section class="d-none d-lg-block">
-                    <h1>Recent Posts</h1>
-                    <ul>
-                    % foreach my $post  (recent_posts->all) {
-                        <li><a href="<%= $post->uri %>"><%= $post->title %></a></li>
-                    % }
-                    </ul>
-                </section>
-            </div>
-
+            <footer style="font-size:small; font-style:italic" class="container">
+            <hr />
+            <%== site_info->footer_section %>
+            </footer>
         </div>
 
-        <footer style="font-size:small; font-style:italic" class="container">
-        <hr />
-        <%== site_info->footer_section %>
-        </footer>
-    </div>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    <script type="text/javascript" src="https://code.jquery.com/jquery.js"></script>
-    <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
     </body>
 </html>
 

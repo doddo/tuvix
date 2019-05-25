@@ -1,20 +1,33 @@
 % layout 'wrapper';
-<div class="page-header">
-<h1>Search</h1>
-</div>
-<div id="search">
-% if ($query) {
-    <h2>Results for "<%= $query %>"</h2>
-    Found <%= $posts->count %> posts
-% if ($posts){
-    <ul>
-    % while (my $post = $posts->next) {
-        <li><a href="<%= $post->uri %>"><%= $post->title %></a></li>
-    %}
-    </ul>
-%}
+% my $count = defined $posts && $posts->count ? $posts->count : 0;
 
-%} else {
-    Please input a query in the search box.
-%}
+<div id="search">
+    <div class="post h-entry">
+        <div class="pt-4 mt-4 border-bottom">
+         <h1>Search</h1>
+             <p>
+             <%= defined $query
+                ? sprintf "Found %i %s.",  $count, $count  == 1 ? "post" : "posts"
+                : "Please input a query in the search box." %>
+            </p>
+         </div>
+        <div class="body e-content">
+            <h2>
+                 <%= $query
+                    ? "Results for '$query'"
+                    : "Nothing found." %>
+            </h2>
+            <p>
+                <ul>
+                % if ($posts){
+                    % while (my $post = $posts->next) {
+                        <li><a href="<%= $post->uri %>"><%= $post->title %></a></li>
+                    %}
+                %} else {
+                    Please input a query in the search box.
+                %}
+                </ul>
+            </p>
+        </div>
+    </div>
 </div>

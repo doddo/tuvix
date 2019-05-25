@@ -68,6 +68,21 @@ Starting hot deployment for Hypnotoad server 32023.
 ```
 
 
+### Start the job queue
+
+Webmention support as well as other such relatively slow tasks are managed with [Minion](https://mojolicious.org/perldoc/Minion) job que and associated workers.
+
+
+It is started as a separate process like so:
+
+```
+script/tuvix minion worker
+```
+
+Jobs such like processing incoming [webmentions](https://indieweb.org/Webmention) are jobs which gets automatically enqueued if `recieve_webmentions` is set to something which Perl evaluates to "true", like `1`.
+
+
+
 # LICENSE
 
 Copyright (C) Petter H
@@ -81,5 +96,5 @@ Petter H <dr.doddo@gmail.com>
 
 # CREDITS
 
-* [Jason McIntosh](http://jmac.org/):  Most of the templates have been ported from [Plerds templates](https://github.com/jmacdotorg/plerd/tree/master/t/templates) which is originally written by Jason McIntosh. They have been re-written from .tt => .ep format but have otherwise been left more or less intact so as to maintain the same look and feel as Pled does. 
+* [Jason McIntosh](http://jmac.org/): Most of the templates have been ported from [Plerds templates](https://github.com/jmacdotorg/plerd/tree/master/t/templates) which is originally written by Jason McIntosh. They have been re-written from .tt => .ep format but has in time diverged from the look and feel of Plerd into something with a slightly bluer hue. (They have diverged in other ways aswell, such like been migrated to Bootstrap 4). Also [a variant](lib/Web/Mention/Mojo.pm) of the [Web::Mention](https://metacpan.org/pod/Web::Mention) module (also by Jason McIntosh) have been shoehorned into this project. It has been made to use Mojo::UserAgent in stead of LWP::UserAgent, (mainly because it is easier to test this app with it).
 
