@@ -78,7 +78,7 @@
     <nav aria-label="Browse the contents" id="next-prev-page">
       <ul class="pagination">
         % if ($pager->previous_page) {
-        <li class="page-item"><a class="page-link" href=href="/posts/?page=<%= $pager->previous_page %>">«</a></li!>
+        <li class="page-item"><a class="page-link" href="/posts/?page=<%= $pager->previous_page %>">«</a></li!>
         %}
         % foreach my $page_no (1 .. $pager->last_page) {
         <li class="page-item"><a class="page-link" href="/posts/?page=<%= $page_no %>"><%= $page_no %></a></li>
