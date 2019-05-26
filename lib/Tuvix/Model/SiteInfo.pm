@@ -90,9 +90,8 @@ sub _build_sidebar_section {
     my $self = shift;
     return <<EOM
   <section>
-  <h1>Hello</h1>
-  <p>
-  This is a blog by <a href="mailto:${\($self->author_email)}">${\($self->author_name)}</a>.
+      <h2>Hello</h2>
+      <p>This is a blog by <a href="mailto:${\($self->author_email)}">${\($self->author_name)}</a>.</p>
   </section>
 EOM
 }

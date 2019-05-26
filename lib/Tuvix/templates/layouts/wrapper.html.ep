@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <title><%== $title %></title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -40,13 +40,16 @@
             }
             a {
                 color: #bb3333;
-                &:hover{ color:#d99a30;}
             }
+            a hover {
+                color:#d99a30;
+            }
+
 
         </style>
     </head>
     <body>
-        <nav class="navbar navbar-expand-md navbar-light" style="background-color: #e3f2fd;" role="navigation">
+        <nav class="navbar navbar-expand-md navbar-light" style="background-color: #e3f2fd;">
             <div class="container">
 
                 <a class="navbar-brand" href="/"><%== site_info->title %></a>
@@ -80,11 +83,9 @@
                 </div>
 
                 <div class="col-md-3 sidebar">
-                    <section>
                     <%== site_info->sidebar_section %>
-                    </section>
                     <section class="d-none d-lg-block">
-                        <h1>Recent Posts</h1>
+                        <h2>Recent Posts</h2>
                         <ul>
                         % foreach my $post  (recent_posts->all) {
                             <li><a href="<%= $post->uri %>"><%= $post->title %></a></li>

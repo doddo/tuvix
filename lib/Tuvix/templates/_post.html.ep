@@ -9,10 +9,9 @@
         </div>
 
         <data class="dt-published" value="<%= $post->date->iso8601().'Z' %>"></data>
-        <data class="p-author h-card">
+        <data class="p-author h-card" value="">
             <data class="p-name" value="<%= $post->author_name %>"></data>
             <data class="u-url<%= $uid %>" <%== $rel %> value="<%= base_url->to_abs %>"></data>
-            <p class="p-note"><%= site_info->author_bio %></p>
             <data class="u-photo" value="<%= site_info->author_photo->to_abs %>"></data>
         </data>
         <data class="p-summary" value="<%= $post->description %>"></data>
@@ -27,7 +26,9 @@
                 % while (my $tag = $tags->next){
                     <li class="list-inline-item p-category">
                         <a href="/posts/?tag=<%=  $tag->url_escaped %>">
-                            <span class="text-light bg-dark"><%= $tag->tag %><span>
+                            <span class="text-light bg-dark">
+                                <%= $tag->tag %>
+                            </span>
                         </a>
                     </li>
                 %}
