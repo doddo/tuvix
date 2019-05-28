@@ -1,37 +1,5 @@
 % layout 'wrapper';
 
-% if ($posts->count > 1) {
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script>
-   $(document).ready(function() {
-        var win = $(window);
-        var i = 1;
-        var eof = false;
-        win.scroll(function() {
-            // End of the document reached?
-            if (!eof && $(document).height() - win.height() == win.scrollTop()) {
-                 var ws = new WebSocket('<%= websocket_url %>');
-
-                // $('#loading').show();
-                ws.onmessage = function (event) {
-                    if (event.data === 'EOF') {
-                        eof = true;
-                        $('#next-prev-page').hide();
-                    } else {
-                        $( "#posts" ).append(event.data);
-                    }
-                };
-                ws.onopen = function (event) {
-                    ws.send(JSON.stringify({
-                        page: ++i,
-                        query: window.location.search
-                    }));
-                };
-            }
-        });
-    });
-</script>
-%}
 
 <div id="posts">
 % my $first_time = 0;
