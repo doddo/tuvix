@@ -6,6 +6,8 @@ requires 'DBIx::Class::Schema';
 requires 'DBD::SQLite', '1.60';
 requires 'Mojolicious', '8.07';
 requires 'Mojo::Unicode::UTF8', '0.002';
+requires 'Mojo::JSON';
+requires 'Mojo::Parameters';
 requires 'Mojolicious::Commands';
 requires 'Mojolicious::Plugin::Minion::Workers';
 

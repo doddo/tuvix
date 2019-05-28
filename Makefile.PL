@@ -8,6 +8,8 @@ WriteMakefile(
     PREREQ_PM => {
         'Mojolicious'                          => '8.07',
         'Mojo::Unicode::UTF8'                  => '0.002',
+        'Mojo::JSON'                           => '0',
+        'Mojo::Parameters'                     => '0',
         'DateTime::Format::SQLite'             => '0.11',
         'DBD::SQLite'                          => '1.60',
         'DBIx::Class'                          => '0.082841',

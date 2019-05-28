@@ -21,7 +21,12 @@
                         $( "#posts" ).append(event.data);
                     }
                 };
-                ws.onopen = function (event) { ws.send(++i) };
+                ws.onopen = function (event) {
+                    ws.send(JSON.stringify({
+                        page: ++i,
+                        query: window.location.search
+                    }));
+                };
             }
         });
     });

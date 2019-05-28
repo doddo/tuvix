@@ -7,6 +7,10 @@ use Mojo::Util qw/url_escape/;
 
 use Tuvix::Model::Posts;
 
+use Mojo::JSON qw(decode_json);
+use Mojo::Parameters;
+use Try::Tiny;
+
 use DateTime;
 
 use strict;
@@ -168,19 +172,28 @@ sub search {
 sub load_next {
     my $c = shift;
     $c->on(message => sub {
-        my ($self, $page) = @_;
+        my ($self, $json_message) = @_;
 
-        my $posts = $self->posts->get_posts_from_query(undef, $page);
+        try {
+            my $message = decode_json $json_message;
+            my $params =  Mojo::Parameters->new($$message{query});
+            my $posts = $params->param('tag')
+                ? $c->posts->resultset->get_posts_from_tag($params->param('tag'), $$message{page})
+                : $self->posts->get_posts_from_query(undef, $$message{page});
 
-        if ($posts->count) {
-            while (my $post = $posts->next) {
-                $self->stash(post => $post);
-                $self->send($self->render_to_string(template => '_post'));
+            if ($posts->count) {
+                while (my $post = $posts->next) {
+                    $self->stash(post => $post);
+                    $self->send($self->render_to_string(template => '_post'));
+                }
             }
+            else {
+                $self->send('EOF');
+            };
         }
-        else {
-            $self->send('EOF');
-        };
+        catch {
+            $self->app->log->warn("Unable to decode incoming ws JSON (or other error encountered): ". $_);
+        }
     });
 }
 
