@@ -45,20 +45,23 @@
 %}
 %}
 
-% if ($posts->count > 1) {
+% if ($posts->pager->last_page > 1) {
 % my $pager = $posts->pager;
 
     <nav aria-label="Browse the contents" id="next-prev-page">
       <ul class="pagination">
+        % my $page_base = "/posts/?page=%s";
+        % $page_base .= "&tag=" . param('tag') if param('tag');
+
         % if ($pager->previous_page) {
-        <li class="page-item"><a class="page-link" href="/posts/?page=<%= $pager->previous_page %>">«</a></li!>
+        <li class="page-item"><a class="page-link" href="<%= sprintf($page_base, $pager->previous_page) %>">«</a></li!>
         %}
         % foreach my $page_no (1 .. $pager->last_page) {
-        <li class="page-item"><a class="page-link" href="/posts/?page=<%= $page_no %>"><%= $page_no %></a></li>
+        <li class="page-item<%= " active" if $page_no == $pager->current_page %>"><a class="page-link" href="<%= sprintf($page_base, $page_no) %>"><%= $page_no %></a></li>
 
         %}
         % if ($posts->pager->next_page) {
-        <li class="page-item"><a class="page-link" href="/posts/?page=<%= $posts->pager->next_page %>">»</a></li>
+        <li class="page-item"><a class="page-link" href="<%= sprintf($page_base, $pager->next_page) %>">»</a></li>
         %}
 
       </ul>
