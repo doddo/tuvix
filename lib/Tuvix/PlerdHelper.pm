@@ -65,7 +65,8 @@ sub create_or_update_post {
     my $plerd_post = shift;
     my $schema = shift || $self->schema();
 
-    $self->log->info(sprintf "Creating or updating post [%s]: %s", $plerd_post->guid, $plerd_post->title);
+    $self->log->info(sprintf "Creating or updating post [%s] with %2i tags: %s",
+        $plerd_post->guid, scalar @{$plerd_post->tags}, $plerd_post->title);
 
     my $post = $schema->resultset('Post')->find_or_new(
         {
