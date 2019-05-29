@@ -1,6 +1,6 @@
 FROM perl:latest
 
-RUN apt update && apt install -y supervisor
+RUN apt update && apt install -y supervisor sqlite3
 
 RUN useradd --system tuvix -d /opt/tuvix/
 RUN mkdir -p /opt/tuvix/page/db /opt/tuvix/page/source
