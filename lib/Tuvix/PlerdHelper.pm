@@ -115,7 +115,6 @@ sub create_or_update_post {
     unless ($post->path()) {
         # Find a name which is not allocated already ...
 
-
         my $post_slug = join '-', ($post->date->ymd, slugify($plerd_post->title, 1));
         my $path = $self->base_path->path->merge($post_slug)->to_string;
         my $path_base = $path;

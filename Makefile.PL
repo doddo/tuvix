@@ -17,7 +17,7 @@ WriteMakefile(
         'DBIx::Class::Schema'                  => '0',
         'Moose'                                => '2.2011',
         'Text::MultiMarkdown'                  => '1.000035',
-        'Plerd'                                => '1.802',
+        'Plerd'                                => '>= 1.811',
         'Tie::Hash::Expire'                    => '0.03',
         'SQL::Translator'                      => '0.11024',
         'File::ChangeNotify'                   => '0.29',
