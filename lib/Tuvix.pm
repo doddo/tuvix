@@ -21,45 +21,46 @@ our $VERSION = '1.0';
 
 
 sub startup {
-    my $self = shift;
+    my ($app, @args) = @_;
+    $app->log->info(sprintf ("started $0 with:[%s]", join(', ', @args)));
 
-    $self->plugin('Config');
-    $self->secrets($self->config('secrets'));
+    $app->plugin('Config');
+    $app->secrets($app->config('secrets'));
 
     # Switch to installable home directory
-    $self->home(Mojo::Home->new(path(__FILE__)->sibling('Tuvix')));
+    $app->home(Mojo::Home->new(path(__FILE__)->sibling('Tuvix')));
 
     # Switch to installable "public" directory
-    $self->static->paths->[0] = $self->home->child('public');
+    $app->static->paths->[0] = $app->home->child('public');
 
     # Switch to installable "templates" directory
     # Todo here can be a different when theme support is added.
-    $self->renderer->paths->[0] = $self->home->child('templates');
+    $app->renderer->paths->[0] = $app->home->child('templates');
 
     # Add App specific command namespace.
-    push @{$self->commands->namespaces}, 'Tuvix::Command';
+    push @{$app->commands->namespaces}, 'Tuvix::Command';
 
-    $self->helper(site_info => sub {Tuvix::Model::SiteInfo->new($self->config)});
-    $self->helper(site_info_get => sub {
+    $app->helper(site_info => sub {Tuvix::Model::SiteInfo->new($app->config)});
+    $app->helper(site_info_get => sub {
         my $self = shift;
         my $key = shift;
         $self->site_info->$key()
     });
-    $self->helper(posts => sub {
-        Tuvix::Model::Posts->new(db => $self->config('db'), db_opts => $self->config('db_opts'))
+    $app->helper(posts => sub {
+        Tuvix::Model::Posts->new(db => $app->config('db'), db_opts => $app->config('db_opts'))
     });
 
-    $self->helper(schema => sub {
-        state $schema = Tuvix::Schema->connect(@{$self->config('db')}, $self->config('db_opts'))
+    $app->helper(schema => sub {
+        state $schema = Tuvix::Schema->connect(@{$app->config('db')}, $app->config('db_opts'))
     });
 
-    $self->helper(recent_posts => sub {shift->posts->get_recent_posts()});
+    $app->helper(recent_posts => sub {shift->posts->get_recent_posts()});
 
-    $self->helper(base_url => sub {shift->site_info->base_uri});
-    $self->helper(webmention_url => sub {Mojo::URL->new('/webmention')->base(shift->site_info->base_uri)});
+    $app->helper(base_url => sub {shift->site_info->base_uri});
+    $app->helper(webmention_url => sub {Mojo::URL->new('/webmention')->base(shift->site_info->base_uri)});
 
     # For the websocket URI
-    $self->helper(websocket_url => sub {
+    $app->helper(websocket_url => sub {
         my $self = shift;
         return Mojo::URL
             ->new('/more_posts')
@@ -69,14 +70,14 @@ sub startup {
 
     # For the minions
     # Maybe they ought to have their own db # TODO
-    $self->helper(sqlite => sub {
-        state $sqlite = Mojo::SQLite->new(substr(@{$self->config('db')}[0], 4))});
+    $app->helper(sqlite => sub {
+        state $sqlite = Mojo::SQLite->new(substr(@{$app->config('db')}[0], 4))});
 
     # Expose publication path to the web.
-    push @{$self->static->paths}, $self->site_info->publication_path;
+    push @{$app->static->paths}, $app->site_info->publication_path;
 
     # Controller
-    my $r = $self->routes;
+    my $r = $app->routes;
 
     $r->get('/' => sub {
         my $c = shift;
@@ -98,19 +99,22 @@ sub startup {
     $r->websocket('/more_posts')->to('posts#load_next');
 
     # Share the database connection cache
-    $self->plugin('Mojolicious::Plugin::Minion::Workers', { SQLite => $self->sqlite });
+    $app->plugin('Mojolicious::Plugin::Minion::Workers', { SQLite => $app->sqlite });
 
     # The Tasks
-    $self->plugin('Tuvix::Task::Webmention');
+    $app->plugin('Tuvix::Task::Webmention');
 
-    if ($self->config('watch_source_dir') // 0) {
-        $self->log->info("starting to watch the source dir.");
-        my $watcher = Tuvix::Watcher->new(config => $self->config);
-        my $watcher_pid = $watcher->start();
-    }
-    else {
-        $self->log->info("starting without watching source dir.");
-    }
+    $app->hook(before_server_start => sub {
+        my ($server, $app) = @_;
+        if ($app->config('watch_source_dir') // 0) {
+            $app->log->info("starting to watch the source dir.");
+            my $watcher = Tuvix::Watcher->new(config => $app->config);
+            my $watcher_pid = $watcher->start();
+        }
+        else {
+            $app->log->info("starting without watching source dir.");
+        };
+    });
 }
 
 1;
