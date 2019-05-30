@@ -176,10 +176,10 @@ sub load_next {
 
         try {
             my $message = decode_json $json_message;
-            my $params =  Mojo::Parameters->new($$message{query});
+            my $params =  Mojo::Parameters->new($$message{query} =~ s/^\?//r);
             my $posts = $params->param('tag')
                 ? $c->posts->resultset->get_posts_from_tag($params->param('tag'), $$message{page})
-                : $self->posts->get_posts_from_query(undef, $$message{page});
+                : $self->posts->get_posts_from_query({ type => 'post' }, $$message{page});
 
             if ($posts->count) {
                 while (my $post = $posts->next) {
