@@ -34,8 +34,14 @@ sub startup {
     $app->static->paths->[0] = $app->home->child('public');
 
     # Switch to installable "templates" directory
-    # Todo here can be a different when theme support is added.
+
     $app->renderer->paths->[0] = $app->home->child('templates');
+
+    if ($app->config('templates_path')){
+        # custom templates take precedence.
+        $app->log->info(sprintf "Adding custom templates_path: '%s'", $app->config('templates_path'));
+        unshift @{$app->renderer->paths}, $app->config('templates_path');
+    }
 
     # Add App specific command namespace.
     push @{$app->commands->namespaces}, 'Tuvix::Command';

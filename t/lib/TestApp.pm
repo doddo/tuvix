@@ -20,8 +20,9 @@ use TestData qw\create_testdb\;
 
 
 sub create_testapp {
+    my $config_file = shift || '/assets/tuvix.conf';
 
-    plugin 'Config' => { file => $FindBin::Bin . '/assets/tuvix.conf' };
+    plugin 'Config' => { file => $FindBin::Bin . $config_file };
 
     my $dbh = create_testdb;
 
