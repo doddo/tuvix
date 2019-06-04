@@ -18,9 +18,13 @@ BEGIN {
 
 my @expected_dirs = qw{/ /tmp /tmp/some /tmp/some/directories};
 my @expected_dirs2;
+my @expected_dirs_with_trailing_slash;
 my $test_dir = "$FindBin::Bin/slask";
 my $test_src = "$FindBin::Bin/assets/util";
 unshift(@expected_dirs2, catdir($test_dir, $_)) for @expected_dirs;
+unshift(@expected_dirs_with_trailing_slash, catdir("$FindBin::Bin/slask/util", $_)) for @expected_dirs;
+
+
 my @expected_cp_files = (
     [
         catdir($test_src, "some_test_file.txt"),
@@ -31,6 +35,18 @@ my @expected_cp_files = (
         catdir($test_dir, "test/nested_test_file.txt"),
     ]
 );
+
+my @expected_cp_files_with_trailing_slash = (
+    [
+        catdir($test_src, "some_test_file.txt"),
+        catdir($test_dir, "util/some_test_file.txt")
+    ],
+    [
+        catdir($test_src, "test/nested_test_file.txt"),
+        catdir($test_dir, "util/test/nested_test_file.txt"),
+    ]
+);
+
 
 ok(my @dirs = mkdir_p(
     target => '/tmp/some/directories',
@@ -57,6 +73,18 @@ ok(my @targets = cp_r(
 
 is_deeply(\@targets, \@expected_cp_files, 'Correct files would have been copied recursively');
 
+
+ok(my @targets_with_trailing_slash = cp_r(
+    source  => $test_src,
+    target  => "$FindBin::Bin/slask/",
+    noop    => 1,
+    verbose => 1
+), "noop cp_r does not crash.");
+
+is_deeply(\@targets_with_trailing_slash, \@expected_cp_files_with_trailing_slash,
+    'Correct files would have been copied recursively');
+
+
 ok(cp_r(
     source  => $test_src,
     target  => "$FindBin::Bin/slask",
@@ -66,7 +94,7 @@ ok(cp_r(
 ok(-e $_->[1], "file $_->[0] got copied  to $_->[1]") for @expected_cp_files;
 
 
-plan tests => 12;
+plan tests => 14;
 
 done_testing();
 
