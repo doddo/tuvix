@@ -61,18 +61,34 @@ sub cp_r {
 
     my $verbose = $args{verbose} // 0;
     my $noop = $args{noop} // 0;
+    my $maxdepth = $args{maxdepth} // 1000;
 
     *_cp_r = sub {
         my $source = shift;
         my $target = shift;
+        my $depth = shift || 0;
+
+        return @targets if (++$depth > $maxdepth);
 
         if (-d $source) {
 
-
             opendir(my $dh, $source) or croak "unable to open directory $source: $!\n";
-            if (! -d  $target) {
+
+
+            # If you do cp_r (src => 'assets/kalle' dst => 'assets/kula'
+            # and assets/kalle  is a dir, then it is implied that:
+            # if assets/kula ends without a slash, that the contents of
+            # assets/kalle should be copied to assets/kula
+            # rather than assets/kula/kalle
+            # whereas if you end name with / (dst => assets/kula/), it's
+            # the other way around.
+            my $rel_target = ($depth == 1 && $target !~ m{/$})
+                ? $target
+                : catdir($target, basename($source));
+
+            if (! -d  $rel_target) {
                 mkdir_p(
-                    target  => $target,
+                    target  => $rel_target,
                     verbose => $verbose,
                     noop    => $noop
                 )
@@ -80,7 +96,8 @@ sub cp_r {
 
             while (my $filename = readdir $dh) {
                 next if ($filename eq '.' || $filename eq '..');
-                _cp_r(catdir($source, $filename), catdir($target, basename($source)));
+
+                _cp_r(catdir($source, $filename), $rel_target, $depth);
             }
             closedir($dh);
         }
@@ -97,6 +114,7 @@ sub cp_r {
             }
             else {
                 # TODO: replace capabilities.
+                # unlink, copy, and / or die if it's a dir?
                 croak "Unable to copy $source => $relative_target: File exists.\n";
             }
         }

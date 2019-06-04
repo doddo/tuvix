@@ -9,17 +9,17 @@ use File::Spec::Functions 'catdir';
 
 use feature qw/say/;
 
-plan tests => 12;
 
 BEGIN {
     unshift @INC, ("$FindBin::Bin/lib", "$FindBin::Bin/../lib");
     use_ok("Tuvix::Util", qw/cp_r mkdir_p/);
 }
 
+plan tests => 12;
 
 my @expected_dirs = qw{/ /tmp /tmp/some /tmp/some/directories};
 my @expected_dirs2;
-my $test_dir = "$FindBin::Bin/slask/util";
+my $test_dir = "$FindBin::Bin/slask";
 my $test_src = "$FindBin::Bin/assets/util";
 unshift(@expected_dirs2, catdir($test_dir, $_)) for @expected_dirs;
 my @expected_cp_files = (
@@ -72,12 +72,14 @@ END {
     foreach my $file_pairs (@expected_cp_files) {
         die unless $file_pairs->[1] =~ m/slask/;
         unlink $file_pairs->[1];
-
-
     }
 
     foreach my $dir (@expected_dirs2) {
         last if ($dir eq $test_dir);
         rmdir $dir or warn "could not remove test dir $dir: $!";
     }
+
+    rmdir catdir($test_dir, 'test');
+    rmdir $test_dir;
+
 }
