@@ -15,7 +15,6 @@ BEGIN {
     use_ok("Tuvix::Util", qw/cp_r mkdir_p/);
 }
 
-plan tests => 12;
 
 my @expected_dirs = qw{/ /tmp /tmp/some /tmp/some/directories};
 my @expected_dirs2;
@@ -65,6 +64,9 @@ ok(cp_r(
 ), "cp_r does not crash.");
 
 ok(-e $_->[1], "file $_->[0] got copied  to $_->[1]") for @expected_cp_files;
+
+
+plan tests => 12;
 
 done_testing();
 
