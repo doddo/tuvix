@@ -1,8 +1,6 @@
 package Tuvix::Util;
 use strict;
 use warnings FATAL => 'all';
-no warnings 'redefine';
-
 
 use Carp qw/croak/;
 use File::Basename qw/basename dirname/;
@@ -55,6 +53,7 @@ sub mkdir_p {
 
 sub cp_r {
     my %args = @_;
+    my $_cp_r;
     my @targets;
     exists $args{$_} or croak "missing mandatory arg: $_\n"
         for qw/source target/;
@@ -63,7 +62,7 @@ sub cp_r {
     my $noop = $args{noop} // 0;
     my $maxdepth = $args{maxdepth} // 1000;
 
-    *_cp_r = sub {
+    $_cp_r = sub {
         my $source = shift;
         my $target = shift;
         my $depth = shift || 0;
@@ -97,7 +96,7 @@ sub cp_r {
             while (my $filename = readdir $dh) {
                 next if ($filename eq '.' || $filename eq '..');
 
-                _cp_r(catdir($source, $filename), $rel_target, $depth);
+                $_cp_r->(catdir($source, $filename), $rel_target, $depth);
             }
             closedir($dh);
         }
@@ -129,7 +128,7 @@ sub cp_r {
         )
     }
 
-    return _cp_r($args{source}, $args{target});
+    return $_cp_r->($args{source}, $args{target});
 }
 
 1;
