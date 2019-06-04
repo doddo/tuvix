@@ -7,6 +7,8 @@ use File::Basename qw/basename dirname/;
 use File::Copy qw(copy);
 use File::Spec::Functions 'catdir';
 
+use Mojo::Log;
+
 our @ISA = qw(Exporter);
 our @EXPORT = qw(mkdir_p cp_r);
 
@@ -19,6 +21,7 @@ sub mkdir_p {
 
     my $verbose = $args{verbose} // 0;
     my $noop = $args{noop} // 0;
+    my $log = $args{log} // Mojo::Log->new(level => $verbose ? 'debug' : 'warn');
 
     my @dirs;
     my $dirname = $args{target};
@@ -38,7 +41,7 @@ sub mkdir_p {
             elsif (!-d $dir) {
 
                 if ($verbose) {
-                    printf "creating directory '%s'.\n", $dir;
+                    $log->info(sprintf "creating directory '%s'.\n", $dir);
                 }
                 unless ($noop) {
                     mkdir($dir) or croak "Unable to create dir $dir:$!\n";
@@ -61,6 +64,7 @@ sub cp_r {
     my $verbose = $args{verbose} // 0;
     my $noop = $args{noop} // 0;
     my $maxdepth = $args{maxdepth} // 1000;
+    my $log = $args{log} // Mojo::Log->new(level => $verbose ? 'debug' : 'warn');
 
     $_cp_r = sub {
         my $source = shift;
@@ -85,7 +89,7 @@ sub cp_r {
                 ? $target
                 : catdir($target, basename($source));
 
-            if (! -d  $rel_target) {
+            if (!-d $rel_target) {
                 mkdir_p(
                     target  => $rel_target,
                     verbose => $verbose,
@@ -102,25 +106,27 @@ sub cp_r {
         }
         else {
             my $relative_target = catdir($target, basename($source));
-            if ($verbose) {
-                printf "Copying '%s' => '%s'...\n", $source, $relative_target;
-            }
-            if (! -e $relative_target){
+            if (!-e $relative_target) {
                 unless ($noop) {
-                    copy($source, $relative_target) or croak "Unable to copy $source => $relative_target: $!\n";
+                    if (copy($source, $relative_target)) {
+                        $log->info(sprintf "Copying '%s' => '%s'...", $source, $relative_target);
+                    }
+                    else {
+                        $log->warn("Unable to copy $source => $relative_target: $!");
+                    }
                 }
-                push @targets, [$source, $relative_target];
+                push @targets, [ $source, $relative_target ];
             }
             else {
                 # TODO: replace capabilities.
                 # unlink, copy, and / or die if it's a dir?
-                croak "Unable to copy $source => $relative_target: File exists.\n";
+                $log->warn("Unable to copy $source => $relative_target: File exists.");
             }
         }
         return @targets;
     };
 
-    if (! -d  $args{target}) {
+    if (!-d $args{target}) {
         mkdir_p(
             target  => $args{target},
             verbose => $verbose,
