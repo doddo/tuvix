@@ -22,7 +22,6 @@ our $VERSION = '1.0';
 
 sub startup {
     my ($app, @args) = @_;
-    $app->log->info(sprintf ("started $0 with:[%s]", join(', ', @args)));
 
     $app->plugin('Config');
     $app->secrets($app->config('secrets'));
@@ -34,7 +33,6 @@ sub startup {
     $app->static->paths->[0] = $app->home->child('public');
 
     # Switch to installable "templates" directory
-
     $app->renderer->paths->[0] = $app->home->child('templates');
 
     if ($app->config('templates_path')){

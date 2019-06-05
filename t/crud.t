@@ -44,6 +44,6 @@ ok ($post_by_guid->insert_or_update(), "Post can change source_file");
 
 $post_by_guid->guid("abba");
 
-ok ($post_by_guid->insert_or_update(), "Post can't change guid");
+ok ($post_by_guid->insert_or_update(), "Post cat change guid");
 
 done_testing();
