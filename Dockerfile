@@ -14,7 +14,7 @@ USER tuvix
 ENV PERL5LIB /opt/tuvix/perl5/lib/perl5
 
 
-RUN cpanm --local-lib=~/perl5 local::lib && eval $(perl -i ~/perl5/lib/perl5/ -Mlocal::lib)
+RUN cpanm --local-lib=~/perl5 local::lib && eval "$(perl -i ~/perl5/lib/perl5/ -Mlocal::lib)"
 RUN cpanm Mojo::Server::Hypnotoad
 RUN cpanm  -M https://cpan.metacpan.org  --notest --installdeps .
 
@@ -25,8 +25,10 @@ RUN perl Makefile.PL && make
 
 COPY --chown=tuvix docker/source/* /opt/tuvix/page/source/
 COPY --chown=tuvix docker/pub/ /opt/tuvix/page/pub
+VOLUME /opt/docker/page
+
 COPY --chown=tuvix docker/tuvix.conf /opt/tuvix/tuvix.conf
-COPY --chown=tuvix docker/tuvix.conf /opt/tuvix/tuvix.conf
+
 USER root
 COPY docker/dbinit.sh /usr/local/bin/
 COPY docker/supervisord.conf /etc/supervisor/supervisord.conf
@@ -34,7 +36,6 @@ USER tuvix
 
 ENV PATH="/opt/tuvix/perl5/bin:${PATH}"
 
-#CMD ["hypnotoad", "-f", "script/tuvix"]
-#ENTRYPOINT ["docker-entrypoint.sh"]
+EXPOSE 8080
 
 CMD ["/usr/bin/supervisord"]
