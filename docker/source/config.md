@@ -23,7 +23,7 @@ Here's how to configure a Dropbox backed Tuvix installation in Docker.
 
 <pre>
 {
-  db => ["dbi:SQLite:/dbox/Dropbox/tuvix/db/tuvix.db","",""],
+  db => ["dbi:SQLite:/opt/dropbox/Dropbox/tuvix/db/tuvix.db","",""],
 
   db_opts => {
     RaiseError     => 1,
@@ -42,9 +42,9 @@ Here's how to configure a Dropbox backed Tuvix installation in Docker.
   # if put behind reverse proxy, put the actual base URI here
   base_uri         => 'http://localhost:8080',
   
-  path             => '/dbox/Dropbox/tuvix',
-  source_path      => '/dbox/Dropbox/tuvix/source',
-  publication_path => '/dbox/Dropbox/tuvix/pub',
+  path             => '/opt/dropbox/Dropbox/tuvix',
+  source_path      => '/opt/dropbox/Dropbox/tuvix/source',
+  publication_path => '/opt/dropbox/Dropbox/tuvix/pub',
   title            => 'Example Tuvix Installation',
   author_name      => 'Foobar',
   author_email     => 'foo@bar.re',
@@ -78,14 +78,9 @@ Now it will look something like this
 
 
 ### Run the containers
-First is the [janeczku/dropbox](https://hub.docker.com/r/janeczku/dropbox/) container. Start it with `DBOX_UID` and `DBOX_GID` both set to `999` (the user running the tuvix stuff)
+First is the [otherguy/dropbox](https://github.com/otherguy/docker-dropbox) container. Start it with `DROPBOX_UID` and `DROPBOX_UID` both set to `999` (the user running the tuvix stuff)
     
-    sudo docker run \
-               --name=dropbox \
-               -e DBOX_UID=999 \
-               -e DBOX_GID=999 \
-             janeczku/dropbox
-    
+    # docker run --detach --name=dropbox --restart=always -e DROPBOX_UID=999 -e DROPBOX_GID=999 otherguy/dropbox:latest
     
 Something like that. Then with this in place, start the `doddo/tuvix` container with something like:
     
