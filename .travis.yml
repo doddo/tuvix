@@ -9,6 +9,6 @@ before_install:
   - build-perl
   - perl -V
 install:
-  - cpanm --quiet -M https://cpan.metacpan.org  --notest --installdeps .
+  - cpanm --quiet --notest --installdeps .
 script:
   - prove -l $(test-files)
