@@ -25,7 +25,7 @@ WriteMakefile(
         'File::Copy'                           => '0',
         'Minion::Backend::SQLite'              => '4.002',
         'Mojolicious::Plugin::Minion::Workers' => '0',
-        'Web::Mention'                         => '0'
+        'Web::Mention'                         => '0.703'
     },
     test      => { TESTS => 't/*.t' }
 );

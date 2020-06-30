@@ -2,14 +2,13 @@
 sudo: false
 language: perl
 perl:
-  - "5.26"
-  #- "5.24.3"
+  - "5.30"
 before_install:
   - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
   - source ~/travis-perl-helpers/init
   - build-perl
   - perl -V
 install:
-  - cpanm --quiet -M https://cpan.metacpan.org  --notest --installdeps .
+  - cpanm --quiet --notest --installdeps .
 script:
   - prove -l $(test-files)
